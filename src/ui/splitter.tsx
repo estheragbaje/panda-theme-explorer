@@ -9,6 +9,8 @@ import { splitter } from '../../styled-system/recipes'
 const { withProvider, withContext } = createSlotRecipeContext(splitter)
 
 export const Root = withProvider(Splitter.Root, 'root')
+// For a splitter controlled from useSplitter().
+export const RootProvider = withProvider(Splitter.RootProvider, 'root')
 export const Panel = withContext(Splitter.Panel, 'panel')
 export const ResizeTrigger = withContext(Splitter.ResizeTrigger, 'resizeTrigger')
 export const ResizeTriggerIndicator = withContext(Splitter.ResizeTriggerIndicator, 'resizeTriggerIndicator')

@@ -13,3 +13,4 @@ export const THEME_IDS: ThemeId[] = THEMES.map((theme) => theme.id)
 // Light is the default. Only an explicit choice is stored; light removes the key.
 export type Mode = 'light' | 'dark'
 export const MODE_STORAGE_KEY = 'pt-mode'
+export const THEME_STORAGE_KEY = 'pt-theme'

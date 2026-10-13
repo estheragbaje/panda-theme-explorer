@@ -1,4 +1,6 @@
-import { defineThemeContract } from '@pandacss/dev'
+// The standalone define entry has no Node dependencies, so the inspector can import the
+// theme objects in the browser.
+import { defineThemeContract } from '@pandacss/dev/define'
 
 // Every token a theme must define. Components only ever read these names, so a theme
 // is complete when it fills in this shape. Leaving a key out is a type error.

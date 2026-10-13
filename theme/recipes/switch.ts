@@ -9,6 +9,7 @@ export const switchRecipe = defineSlotRecipe({
   slots: switchAnatomy.keys(),
   base: {
     root: {
+      position: 'relative',
       display: 'inline-flex',
       alignItems: 'center',
       gap: '2.5',

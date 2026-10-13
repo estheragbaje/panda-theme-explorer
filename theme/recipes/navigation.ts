@@ -85,7 +85,24 @@ export const splitter = defineSlotRecipe({
   slots: splitterAnatomy.keys(),
   base: {
     root: { display: 'flex', h: 'full', minH: '0' },
-    panel: { display: 'flex', flexDirection: 'column', minW: '0', minH: '0', overflow: 'hidden' },
+    panel: {
+      // Contains absolutely positioned descendants (Ark's hidden inputs), so they can't
+      // stretch the document past the clipped panel.
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      minW: '0',
+      minH: '0',
+      overflow: 'hidden',
+      // Ark sizes panels in percent, rounded to 0.1%, so a collapsed sidebar would drift
+      // by a few pixels across window sizes. A panel marked data-collapsed is pinned to
+      // --panel-collapsed-size exactly; the other panels share what's left.
+      '&[data-collapsed]': {
+        flex: '0 0 var(--panel-collapsed-size) !important',
+        minWidth: 'var(--panel-collapsed-size) !important',
+        maxWidth: 'var(--panel-collapsed-size) !important',
+      },
+    },
     resizeTrigger: {
       position: 'relative',
       flexShrink: '0',

@@ -14,4 +14,9 @@ export const viewTransitions = defineViewTransitions({
     old: { animation: 'none', mixBlendMode: 'normal' },
     new: { animation: 'modeReveal 400ms cubic-bezier(0.2, 0, 0, 1)', mixBlendMode: 'normal' },
   },
+  // Theme switch: a quick crossfade.
+  theme: {
+    old: { animationDuration: '150ms' },
+    new: { animationDuration: '150ms' },
+  },
 })

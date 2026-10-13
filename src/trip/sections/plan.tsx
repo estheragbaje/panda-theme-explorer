@@ -124,7 +124,7 @@ export function PlanSection() {
               <span className={css({ textStyle: 'label' })} id="whos-coming">
                 Who&apos;s coming
               </span>
-              <ul aria-labelledby="whos-coming" className={css({ display: 'flex', alignItems: 'center', h: 'control.md', '& > li:not(:first-child)': { ms: '-2' } })}>
+              <ul aria-labelledby="whos-coming" className={css({ display: 'flex', alignItems: 'center', h: 'control.md', '& > li:not(:first-child)': { ms: '-1' } })}>
                 {coming.map((person) => (
                   <li key={person.initials}>
                     <Tooltip.Root openDelay={200} closeDelay={0}>

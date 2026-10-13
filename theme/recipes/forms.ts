@@ -64,6 +64,8 @@ export const checkbox = defineSlotRecipe({
   base: {
     root: {
       colorPalette: 'accent',
+      // Anchors Ark's visually hidden input to the control instead of the page.
+      position: 'relative',
       display: 'inline-flex',
       alignItems: 'center',
       gap: '2.5',
@@ -90,6 +92,7 @@ export const radioGroup = defineSlotRecipe({
     },
     label: fieldLabel,
     item: {
+      position: 'relative',
       display: 'inline-flex',
       alignItems: 'center',
       gap: '2.5',
