@@ -26,6 +26,16 @@ export const globalCss = defineGlobalStyles({
     lineHeight: 'normal',
     WebkitFontSmoothing: 'antialiased',
   },
+  // Reduced motion: transitions and animations become instant everywhere. !important in
+  // the base layer beats normal declarations in the recipes and utilities layers.
+  '@media (prefers-reduced-motion: reduce)': {
+    '*, ::before, ::after': {
+      animationDuration: '0.01ms !important',
+      animationIterationCount: '1 !important',
+      transitionDuration: '0.01ms !important',
+      scrollBehavior: 'auto !important',
+    },
+  },
   '::selection': {
     bg: 'highlight.bg',
     color: 'highlight.fg',

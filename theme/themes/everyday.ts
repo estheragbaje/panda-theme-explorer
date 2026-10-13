@@ -69,8 +69,8 @@ export const everyday = defineTheme({
     fontSizes: { body: { value: '0.9375rem' } },
     fontWeights: { display: { value: '600' }, button: { value: '500' } },
     letterSpacings: { display: { value: '-0.015em' }, button: { value: '0em' } },
-    radii: { control: { value: '6px' }, card: { value: '10px' }, badge: { value: '9999px' } },
-    borderWidths: { control: { value: '1px' }, card: { value: '1px' }, rowMarker: { value: '0px' } },
+    radii: { control: { value: '6px' }, card: { value: '10px' }, badge: { value: '9999px' }, mark: { value: '4px' } },
+    borderWidths: { control: { value: '1px' }, card: { value: '1px' }, rowMarker: { value: '0px' }, focus: { value: '2px' } },
     shadows: {
       raised: {
         value: {

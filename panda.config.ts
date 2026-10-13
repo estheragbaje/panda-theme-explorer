@@ -1,10 +1,13 @@
 import { defineConfig } from '@pandacss/dev'
-import { themeConditions } from './theme/global/conditions'
+import { conditions } from './theme/global/conditions'
 import { globalCss } from './theme/global/global-css'
 import { pressOffset } from './theme/global/utilities'
 import { keyframes, viewTransitions } from './theme/global/view-transitions'
 import { breakpoints, containerSizes, primitives } from './theme/primitives'
-import { switchRecipe } from './theme/recipes/switch'
+import { recipes, slotRecipes } from './theme/recipes'
+import { motionKeyframes } from './theme/styles/keyframes'
+import { layerStyles } from './theme/styles/layer-styles'
+import { textStyles } from './theme/styles/text-styles'
 import { THEME_IDS } from './theme/registry'
 import { everyday, themes } from './theme/themes'
 
@@ -18,7 +21,7 @@ export default defineConfig({
   include: ['./src/**/*.{ts,tsx}'],
   exclude: [],
   outdir: 'styled-system',
-  conditions: { extend: themeConditions },
+  conditions: { extend: conditions },
   utilities: { extend: { pressOffset } },
   globalCss,
   theme: {
@@ -28,12 +31,18 @@ export default defineConfig({
       tokens: primitives,
       // Everyday fills :root, so the page is fully styled before any theme attribute is set.
       semanticTokens: everyday.semanticTokens,
-      keyframes,
+      keyframes: { ...keyframes, ...motionKeyframes },
       viewTransitions,
-      slotRecipes: { switchRecipe },
+      textStyles,
+      layerStyles,
+      recipes,
+      slotRecipes,
       containerNames: ['preview'],
     },
   },
   themes,
-  staticCss: { themes: THEME_IDS },
+  // Every recipe variant is generated up front. Panda extracts styles statically, so a
+  // variant chosen at runtime (status={item.status}) would otherwise get no CSS. A theme
+  // explorer shows every component, so the full set is the right trade-off (~12KB gzipped).
+  staticCss: { themes: THEME_IDS, recipes: '*' },
 })

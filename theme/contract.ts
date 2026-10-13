@@ -25,8 +25,8 @@ export const defineTheme = defineThemeContract({
     fontSizes: { body: {} },
     fontWeights: { display: {}, button: {} },
     letterSpacings: { display: {}, button: {} },
-    radii: { control: {}, card: {}, badge: {} },
-    borderWidths: { control: {}, card: {}, rowMarker: {} },
+    radii: { control: {}, card: {}, badge: {}, mark: {} },
+    borderWidths: { control: {}, card: {}, rowMarker: {}, focus: {} },
     shadows: { raised: {}, overlay: {}, control: {}, pressed: {} },
     // Decorative slots. 'none' in themes that don't use them.
     assets: { canvas: {}, edge: {}, ears: {}, cardMark: {} },

@@ -34,6 +34,18 @@ export const primitives = defineTokens({
   spacing,
   sizes: {
     ...spacing,
+    // Larger fixed widths and heights for layout (not used for spacing).
+    36: { value: '9rem' },
+    40: { value: '10rem' },
+    44: { value: '11rem' },
+    48: { value: '12rem' },
+    52: { value: '13rem' },
+    56: { value: '14rem' },
+    60: { value: '15rem' },
+    64: { value: '16rem' },
+    72: { value: '18rem' },
+    80: { value: '20rem' },
+    96: { value: '24rem' },
     xs: { value: '20rem' },
     sm: { value: '24rem' },
     md: { value: '28rem' },
@@ -94,7 +106,11 @@ export const primitives = defineTokens({
     transparent: { value: 'transparent' },
     current: { value: 'currentColor' },
   },
+  opacity: {
+    disabled: { value: 0.5 },
+  },
   zIndex: {
+    behind: { value: -1 },
     base: { value: 0 },
     raised: { value: 1 },
     sticky: { value: 100 },

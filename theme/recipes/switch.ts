@@ -1,5 +1,6 @@
 import { switchAnatomy } from '@ark-ui/react/anatomy'
 import { defineSlotRecipe } from '@pandacss/dev'
+import { disabled, focusRing } from './shared'
 
 // Ark Switch. Slots come from Ark's own anatomy so they stay in sync on upgrades.
 // Shape follows radii.badge, so the switch is a pill in Everyday and square in Blueprint.
@@ -13,7 +14,7 @@ export const switchRecipe = defineSlotRecipe({
       gap: '2.5',
       cursor: 'pointer',
       userSelect: 'none',
-      _disabled: { opacity: '0.5', cursor: 'not-allowed' },
+      _disabled: disabled,
     },
     control: {
       display: 'inline-flex',
@@ -28,12 +29,7 @@ export const switchRecipe = defineSlotRecipe({
       transitionDuration: 'fast',
       transitionTimingFunction: 'standard',
       _checked: { bg: 'accent.solid' },
-      _focusVisible: {
-        outlineWidth: 'control',
-        outlineStyle: 'solid',
-        outlineColor: 'focusRing',
-        outlineOffset: '0.5',
-      },
+      _focusVisible: focusRing,
     },
     thumb: {
       display: 'grid',
