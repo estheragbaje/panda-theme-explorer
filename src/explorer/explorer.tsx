@@ -45,6 +45,15 @@ const subscribeNarrow = (onChange: () => void) => {
   return () => mql.removeEventListener('change', onChange)
 }
 
+const toPct = (px: number, width: number) => (px / Math.max(width, 1)) * 100
+
+// Splitter percentages for a layout at a given width.
+function sizesFor(l: Layout, width: number) {
+  const rail = toPct(l.railCollapsed ? RAIL_COLLAPSED : l.railPx, width)
+  const inspector = l.inspectorOpen ? toPct(l.inspectorPx, width) : 0
+  return [rail, 100 - rail - inspector, inspector]
+}
+
 function readLayout(): Layout {
   try {
     const stored = JSON.parse(localStorage.getItem(LAYOUT_KEY) ?? 'null')
@@ -148,25 +157,25 @@ export function Explorer() {
   const isDark = useIsDark()
   const rootRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(SSR_WIDTH)
+  const [measured, setMeasured] = useState(false)
   const [layout, setLayout] = useState<Layout>(DEFAULT_LAYOUT)
   const [drawerOpen, setDrawerOpen] = useState(false)
   // Below md the inspector is a drawer, so the header button reflects the drawer there.
   const narrow = useSyncExternalStore(subscribeNarrow, isNarrow, () => false)
   const restored = useRef(false)
   const widthRef = useRef(SSR_WIDTH)
+  // Refs mirror state for callbacks and effects; render reads the state itself.
   const layoutRef = useRef(layout)
-  layoutRef.current = layout
+  // True while we push sizes ourselves (toggles, restore, window resizes). Ark reports
+  // transient sizes then, validated against stale constraints (a collapsed rail at the
+  // old width's collapsed size), so only drags and keyboard resizes are read back.
+  const pushing = useRef(false)
+  const holdResizeEvents = useCallback(() => {
+    pushing.current = true
+    requestAnimationFrame(() => requestAnimationFrame(() => (pushing.current = false)))
+  }, [])
 
-  const pct = useCallback((px: number) => (px / Math.max(widthRef.current, 1)) * 100, [])
-  // Splitter percentages for a layout at the current width.
-  const sizesFor = useCallback(
-    (l: Layout) => {
-      const rail = pct(l.railCollapsed ? RAIL_COLLAPSED : l.railPx)
-      const inspector = l.inspectorOpen ? pct(l.inspectorPx) : 0
-      return [rail, 100 - rail - inspector, inspector]
-    },
-    [pct],
-  )
+  const pct = (px: number) => toPct(px, width)
 
   // The splitter is uncontrolled: layout changes are pushed with setSizes, and onResize
   // (drags, keyboard resizes, collapses) is read back into the pixel layout.
@@ -178,11 +187,11 @@ export function Explorer() {
     ],
     // Ark falls back to defaultSize when the panel constraints change (every resize), so
     // it must describe the current layout, not the first-visit one.
-    defaultSize: sizesFor(layoutRef.current),
+    defaultSize: sizesFor(layout, width),
     onResize: ({ size }) => {
       // Below md the panels are hidden and Ark squeezes them to fit; that must not be
       // saved as the user's layout.
-      if (isNarrow()) return
+      if (isNarrow() || pushing.current) return
       const railPx = (size[0] / 100) * widthRef.current
       const inspectorPx = (size[2] / 100) * widthRef.current
       setLayout((current) => ({
@@ -194,37 +203,51 @@ export function Explorer() {
     },
   })
   const splitterRef = useRef(splitter)
-  splitterRef.current = splitter
+  useLayoutEffect(() => {
+    splitterRef.current = splitter
+    layoutRef.current = layout
+  })
 
   const apply = useCallback((next: Layout) => {
+    layoutRef.current = next
     setLayout(next)
-    splitterRef.current.setSizes(sizesFor(next))
-  }, [sizesFor])
+    holdResizeEvents()
+    splitterRef.current.setSizes(sizesFor(next, widthRef.current))
+  }, [holdResizeEvents])
 
-  // Measure the width, restore the stored layout, and re-apply pixel sizes on resize.
+  // Measure the width, then keep measuring on resize.
   useLayoutEffect(() => {
     const el = rootRef.current
     if (!el) return
     widthRef.current = el.offsetWidth
     setWidth(el.offsetWidth)
-    apply(readLayout())
-    restored.current = true
+    holdResizeEvents()
+    setMeasured(true)
     const observer = new ResizeObserver(([entry]) => {
       const w = entry.contentRect.width
       if (Math.abs(w - widthRef.current) < 0.5) return
+      holdResizeEvents()
       widthRef.current = w
       setWidth(w)
     })
     observer.observe(el)
     return () => observer.disconnect()
-  }, [apply])
+  }, [holdResizeEvents])
 
-  // After a resize has re-rendered the panel constraints for the new width (in percent),
-  // re-apply the pixel layout. Applying it before that re-render lets Ark validate the
-  // collapsed size against the old width's constraints and expand the rail.
+  // Once the panel constraints (in percent) have re-rendered for the measured width,
+  // restore the stored layout, and after every later resize re-apply it. Applying sizes
+  // before that re-render lets Ark validate them against the old width's constraints:
+  // it expands a collapsed rail, or saves the old collapsed size as the rail's width.
   useLayoutEffect(() => {
-    if (restored.current && !isNarrow()) splitterRef.current.setSizes(sizesFor(layoutRef.current))
-  }, [width, sizesFor])
+    if (!measured || isNarrow()) return
+    if (restored.current) {
+      holdResizeEvents()
+      splitterRef.current.setSizes(sizesFor(layoutRef.current, width))
+      return
+    }
+    restored.current = true
+    apply(readLayout())
+  }, [measured, width, apply, holdResizeEvents])
 
   // Persist every change after the stored layout has been restored.
   useEffect(() => {

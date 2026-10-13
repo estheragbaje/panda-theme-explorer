@@ -24,6 +24,8 @@ export const button = defineRecipe({
     ...colorTransition,
     // Riso presses into its shadow (spacing.press); other themes don't move.
     _active: { pressOffset: 'press' },
+    // Sketch's hand-drawn buttons tilt slightly under the pointer (a budgeted theme condition).
+    _themeSketch: { _hover: { rotate: '[-0.6deg]' } },
     _focusVisible: focusRing,
     _disabled: disabled,
     '& svg': { w: '4', h: '4', flexShrink: '0' },

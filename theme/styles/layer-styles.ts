@@ -6,8 +6,16 @@ const border = { borderWidth: 'card', borderStyle: 'solid', borderColor: 'border
 
 export const layerStyles = defineLayerStyles({
   // The page background, including the theme's canvas texture (ruled paper, grid, dots).
+  // backgroundAttachment local: on a scroll container the texture moves with the
+  // content, like paper, instead of staying fixed behind it.
   canvas: {
-    value: { backgroundColor: 'bg.canvas', backgroundImage: 'canvas', backgroundSize: 'canvasTile', color: 'fg.default' },
+    value: {
+      backgroundColor: 'bg.canvas',
+      backgroundImage: 'canvas',
+      backgroundSize: 'canvasTile',
+      backgroundAttachment: 'local',
+      color: 'fg.default',
+    },
   },
   surface: {
     value: { backgroundColor: 'bg.surface', ...border, borderRadius: 'card' },

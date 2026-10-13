@@ -9,7 +9,7 @@ export const focusRing = {
 } as const
 
 export const colorTransition = {
-  transitionProperty: 'background-color, border-color, color, box-shadow, translate',
+  transitionProperty: 'background-color, border-color, color, box-shadow, translate, rotate',
   transitionDuration: 'fast',
   transitionTimingFunction: 'standard',
 } as const

@@ -24,6 +24,8 @@ import {
 import { css } from '../../../styled-system/css'
 import { input } from '../../../styled-system/recipes'
 import { ModeSwitch } from '../../explorer/mode-switch'
+import { useTheme } from '../../explorer/theme-choice'
+import { THEMES } from '../../../theme/registry'
 import * as Alert from '../../ui/alert'
 import * as Avatar from '../../ui/avatar'
 import * as Card from '../../ui/card'
@@ -95,6 +97,9 @@ function StarItems() {
 }
 
 export function QaMatrix() {
+  // ?theme= picks the theme, as in the explorer.
+  const themeId = useTheme()
+  const theme = THEMES.find((t) => t.id === themeId)?.label
   return (
     <main className={css({ maxW: '5xl', mx: 'auto', px: '6', pb: '24' })}>
       <header
@@ -113,7 +118,7 @@ export function QaMatrix() {
       >
         <div>
           <p className={css({ textStyle: 'caption', color: 'fg.muted' })}>Hidden QA page</p>
-          <h1 className={css({ textStyle: 'title' })}>Component state matrix · Everyday</h1>
+          <h1 className={css({ textStyle: 'title' })}>Component state matrix · {theme}</h1>
         </div>
         <ModeSwitch />
       </header>
@@ -698,7 +703,7 @@ export function QaMatrix() {
                     <Drawer.GrabberIndicator />
                   </Drawer.Grabber>
                   <Drawer.Title>Inspector</Drawer.Title>
-                  <Drawer.Description>Tokens for Everyday, light mode.</Drawer.Description>
+                  <Drawer.Description>Tokens for the active theme.</Drawer.Description>
                   <Drawer.CloseTrigger aria-label="Close">
                     <LuX />
                   </Drawer.CloseTrigger>
