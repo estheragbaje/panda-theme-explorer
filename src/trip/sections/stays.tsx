@@ -25,59 +25,63 @@ const TYPE_LABEL: Record<StayType, string> = { hotel: 'Hotel', guesthouse: 'Gues
 
 function StayCard({ stay, saved, onSavedChange }: { stay: Stay; saved: boolean; onSavedChange: (saved: boolean) => void }) {
   return (
-    <Card.Root as="article" className={css({ overflow: 'hidden' })}>
-      {/* Image area drawn from theme tokens: no stock photography. */}
-      <div
-        className={css({
-          position: 'relative',
-          display: 'grid',
-          placeItems: 'center',
-          aspectRatio: 'wide',
-          bg: 'bg.subtle',
-          bgImage: 'canvas',
-          bgSize: 'canvasTile',
-          color: 'fg.subtle',
-          '& > svg': { w: '10', h: '10' },
-        })}
-      >
-        <LuBedDouble aria-hidden />
-        <div className={css({ position: 'absolute', top: '3', insetEnd: '3' })}>
-          <Toggle.Root pressed={saved} onPressedChange={onSavedChange} aria-label={saved ? `Remove ${stay.name} from saved` : `Save ${stay.name}`}>
-            <LuHeart />
-          </Toggle.Root>
+    <Card.Root as="article">
+      {/* Clips the image to the card's corners; on the root it would also clip decorations
+          drawn outside the card, like Panda's ears. */}
+      <div className={css({ display: 'flex', flexDirection: 'column', flex: '1', rounded: 'inherit', overflow: 'hidden' })}>
+        {/* Image area drawn from theme tokens: no stock photography. */}
+        <div
+          className={css({
+            position: 'relative',
+            display: 'grid',
+            placeItems: 'center',
+            aspectRatio: 'wide',
+            bg: 'bg.subtle',
+            bgImage: 'canvas',
+            bgSize: '{sizes.canvasTile}',
+            color: 'fg.subtle',
+            '& > svg': { w: '10', h: '10' },
+          })}
+        >
+          <LuBedDouble aria-hidden />
+          <div className={css({ position: 'absolute', top: '3', insetEnd: '3' })}>
+            <Toggle.Root pressed={saved} onPressedChange={onSavedChange} aria-label={saved ? `Remove ${stay.name} from saved` : `Save ${stay.name}`}>
+              <LuHeart />
+            </Toggle.Root>
+          </div>
         </div>
-      </div>
-      <Card.Body className={css({ gap: '2' })}>
-        <div className={css({ display: 'grid', gap: '0.5' })}>
-          <h3 className={css({ textStyle: 'title' })}>{stay.name}</h3>
-          <p className={css({ display: 'flex', alignItems: 'center', gap: '1', fontSize: 'sm', color: 'fg.muted', '& svg': { w: '3.5', h: '3.5' } })}>
-            <LuMapPin aria-hidden /> {stay.neighborhood} · {TYPE_LABEL[stay.type]}
-          </p>
-        </div>
-        {/* Read-only rating: decorative stars plus text. Ark's RatingGroup is an input
-            (radio group), so it's used for the minimum-rating filter instead. */}
-        <p className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm' })}>
-          <span aria-hidden className={css({ display: 'flex', gap: '0.5', '& svg': { w: '4', h: '4', fill: 'currentColor' } })}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <LuStar key={star} className={css({ color: star <= Math.round(stay.rating) ? 'warning.solid' : 'border.strong' })} />
-            ))}
-          </span>
-          <span className={css({ textStyle: 'numeric' })}>
-            {stay.rating.toFixed(1)}
-            <span className={css({ srOnly: true })}> out of 5,</span>{' '}
-            <span className={css({ color: 'fg.muted' })}>({stay.reviews.toLocaleString('en-US')}<span className={css({ srOnly: true })}> reviews</span>)</span>
-          </span>
-        </p>
-        <div className={css({ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '2', flexWrap: 'wrap', pt: '1' })}>
-          <p>
-            <span className={css({ textStyle: 'numeric', fontSize: 'xl', fontWeight: 'semibold' })}>
-              <Money usd={stay.pricePerNight} cents={false} />
+        <Card.Body className={css({ gap: '2' })}>
+          <div className={css({ display: 'grid', gap: '0.5' })}>
+            <h3 className={css({ textStyle: 'title' })}>{stay.name}</h3>
+            <p className={css({ display: 'flex', alignItems: 'center', gap: '1', fontSize: 'sm', color: 'fg.muted', '& svg': { w: '3.5', h: '3.5' } })}>
+              <LuMapPin aria-hidden /> {stay.neighborhood} · {TYPE_LABEL[stay.type]}
+            </p>
+          </div>
+          {/* Read-only rating: decorative stars plus text. Ark's RatingGroup is an input
+              (radio group), so it's used for the minimum-rating filter instead. */}
+          <p className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm' })}>
+            <span aria-hidden className={css({ display: 'flex', gap: '0.5', '& svg': { w: '4', h: '4', fill: 'currentColor' } })}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <LuStar key={star} className={css({ color: star <= Math.round(stay.rating) ? 'warning.solid' : 'border.strong' })} />
+              ))}
             </span>
-            <span className={css({ fontSize: 'sm', color: 'fg.muted' })}> / night</span>
+            <span className={css({ textStyle: 'numeric' })}>
+              {stay.rating.toFixed(1)}
+              <span className={css({ srOnly: true })}> out of 5,</span>{' '}
+              <span className={css({ color: 'fg.muted' })}>({stay.reviews.toLocaleString('en-US')}<span className={css({ srOnly: true })}> reviews</span>)</span>
+            </span>
           </p>
-          {stay.freeCancellation && <Badge colorPalette="success">Free cancellation</Badge>}
-        </div>
-      </Card.Body>
+          <div className={css({ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '2', flexWrap: 'wrap', pt: '1' })}>
+            <p>
+              <span className={css({ textStyle: 'numeric', fontSize: 'xl', fontWeight: 'semibold' })}>
+                <Money usd={stay.pricePerNight} cents={false} />
+              </span>
+              <span className={css({ fontSize: 'sm', color: 'fg.muted' })}> / night</span>
+            </p>
+            {stay.freeCancellation && <Badge colorPalette="success">Free cancellation</Badge>}
+          </div>
+        </Card.Body>
+      </div>
     </Card.Root>
   )
 }

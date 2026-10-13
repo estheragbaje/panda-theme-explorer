@@ -71,6 +71,7 @@ export const everyday = defineTheme({
     letterSpacings: { display: { value: '-0.015em' }, button: { value: '0em' } },
     radii: { control: { value: '6px' }, card: { value: '10px' }, badge: { value: '9999px' }, mark: { value: '4px' } },
     borderWidths: { control: { value: '1px' }, card: { value: '1px' }, rowMarker: { value: '0px' }, focus: { value: '2px' } },
+    borders: { frame: { value: '{borderWidths.card} solid {colors.border.default}' } },
     shadows: {
       raised: {
         value: {

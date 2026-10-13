@@ -5,7 +5,7 @@ import { modeScript } from "./mode-script";
 
 export const metadata: Metadata = {
   title: "Panda Themes",
-  description: "Seven themes built with Panda CSS, one component set.",
+  description: "Six themes built with Panda CSS, one component set.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

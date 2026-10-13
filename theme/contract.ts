@@ -29,6 +29,9 @@ export const defineTheme = defineThemeContract({
     letterSpacings: { display: {}, button: {} },
     radii: { control: {}, card: {}, badge: {}, mark: {} },
     borderWidths: { control: {}, card: {}, rowMarker: {}, focus: {} },
+    // The full outline of cards and surfaces, so a theme can change its style (Blueprint's
+    // dashed frames), not only its width and color.
+    borders: { frame: {} },
     shadows: { raised: {}, overlay: {}, control: {}, pressed: {} },
     // Decorative slots. 'none' in themes that don't use them.
     assets: { canvas: {}, edge: {}, ears: {}, cardMark: {} },

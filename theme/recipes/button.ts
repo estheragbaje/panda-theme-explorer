@@ -26,6 +26,8 @@ export const button = defineRecipe({
     _active: { pressOffset: 'press' },
     // Sketch's hand-drawn buttons tilt slightly under the pointer (a budgeted theme condition).
     _themeSketch: { _hover: { rotate: '[-0.6deg]' } },
+    // Panda's soft controls squish on press (a budgeted theme condition).
+    _themePanda: { _active: { scale: '[0.97]' } },
     _focusVisible: focusRing,
     _disabled: disabled,
     '& svg': { w: '4', h: '4', flexShrink: '0' },

@@ -101,6 +101,7 @@ export const sketch = defineTheme({
       mark: { value: '6px 3px 5px 2px / 2px 5px 3px 6px' },
     },
     borderWidths: { control: { value: '2px' }, card: { value: '2px' }, rowMarker: { value: '0px' }, focus: { value: '2px' } },
+    borders: { frame: { value: '{borderWidths.card} solid {colors.border.default}' } },
     // Flat: the pencil outline does the work. Overlays get an offset pencil shade so
     // they lift off the page without a blur.
     shadows: {

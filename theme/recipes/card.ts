@@ -1,7 +1,8 @@
 import { defineSlotRecipe } from '@pandacss/dev'
 
-// Decorations (Panda's ears and paw, F1's edge) attach here in phase 6, through the
-// assets.ears / assets.cardMark / assets.edge tokens, once a theme uses them.
+// Decorations come from asset tokens that are 'none' in themes without them: Panda's
+// ears (assets.ears, drawn just above the top edge) and paw print (assets.cardMark, in
+// the bottom corner).
 export const card = defineSlotRecipe({
   className: 'card',
   slots: ['root', 'header', 'title', 'description', 'body', 'footer'],
@@ -11,11 +12,26 @@ export const card = defineSlotRecipe({
       display: 'flex',
       flexDirection: 'column',
       bg: 'bg.card',
+      bgImage: 'cardMark',
+      bgRepeat: 'no-repeat',
+      bgPosition: '[right 0.875rem bottom 0.75rem]',
+      bgSize: '[3.25rem]',
       color: 'fg.default',
-      borderWidth: 'card',
-      borderColor: 'border.default',
+      border: 'frame',
       rounded: 'card',
       shadow: 'raised',
+      // Room for the ears, so stacked cards don't overlap (0px in themes without ears).
+      marginTop: '{sizes.ears}',
+      _before: {
+        content: '""',
+        position: 'absolute',
+        insetInline: '0',
+        bottom: '[100%]',
+        h: 'ears',
+        bgImage: 'ears',
+        bgRepeat: 'no-repeat',
+        pointerEvents: 'none',
+      },
     },
     header: { display: 'flex', flexDirection: 'column', gap: '1', p: 'inset', pb: '0' },
     title: { textStyle: 'title' },

@@ -79,7 +79,7 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
       })}
     >
       <div className={css({ display: 'flex', alignItems: 'baseline', gap: '2', minW: '0' })}>
-        <span className={css({ fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display', fontSize: 'md' })}>Panda Themes</span>
+        <span className={css({ fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display', fontSize: 'md', whiteSpace: 'nowrap' })}>Panda Themes</span>
         <span className={css({ fontSize: 'sm', color: 'fg.muted', truncate: true, hideBelow: 'sm' })}>
           {THEMES.find((t) => t.id === theme)?.label}
         </span>
@@ -92,10 +92,12 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
           // The inspector is only rendered while open, so only point at it then.
           aria-controls={inspectorOpen ? 'inspector' : undefined}
           title="Inspector (])"
+          aria-label="Inspector"
           className={button({ variant: inspectorOpen ? 'tonal' : 'outline', size: 'sm' })}
         >
           {inspectorOpen ? <LuPanelRightClose /> : <LuPanelRightOpen />}
-          Inspector
+          {/* Icon-only on phones, so the header fits the widest theme faces (Pixel). */}
+          <span className={css({ hideBelow: 'sm' })}>Inspector</span>
         </button>
         <Clipboard.Root
           value={themeSource(theme)}

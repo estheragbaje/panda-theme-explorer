@@ -36,6 +36,8 @@ const PAIRS = [
     [`${p}.contrast`, `${p}.solid`, 4.5, 'solid button, solid badge'],
     [`${p}.text`, `${p}.subtle`, 4.5, 'tonal button, subtle badge, alert'],
   ]),
+  ['fg.default', 'accent.subtle', 4.5, 'text in a selected radio card'],
+  ['fg.muted', 'accent.subtle', 4.5, 'description in a selected radio card'],
   ['accent.solid', 'bg.surface', 3, 'checked control on a surface'],
   ['accent.solid', 'bg.canvas', 3, 'checked control on the canvas'],
   ['fg.inverse', 'bg.inverse', 4.5, 'tooltips'],
