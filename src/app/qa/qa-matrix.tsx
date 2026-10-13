@@ -221,7 +221,12 @@ export function QaMatrix() {
           ).map(([label, props]) => (
             <Checkbox.Root key={label} {...props}>
               <Checkbox.Control>
-                <Checkbox.Indicator>{label === 'Indeterminate' ? <LuMinus /> : <LuCheck />}</Checkbox.Indicator>
+                <Checkbox.Indicator>
+                  <LuCheck />
+                </Checkbox.Indicator>
+                <Checkbox.Indicator indeterminate>
+                  <LuMinus />
+                </Checkbox.Indicator>
               </Checkbox.Control>
               <Checkbox.Label>{label}</Checkbox.Label>
               <Checkbox.HiddenInput />

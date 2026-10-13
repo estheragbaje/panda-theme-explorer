@@ -15,4 +15,5 @@ export const Item = withContext(Toc.Item, 'item')
 export const Link = withContext(Toc.Link, 'link')
 export const Indicator = withContext(Toc.Indicator, 'indicator')
 export const Nav = Toc.Nav
+export const Context = Toc.Context
 export const Content = Toc.Content

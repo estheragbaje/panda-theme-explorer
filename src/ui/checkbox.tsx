@@ -12,5 +12,6 @@ export const Root = withProvider(Checkbox.Root, 'root')
 export const Label = withContext(Checkbox.Label, 'label')
 export const Control = withContext(Checkbox.Control, 'control')
 export const Indicator = withContext(Checkbox.Indicator, 'indicator')
-export const Group = withContext(Checkbox.Group, 'group')
+// Group wraps several roots, so it provides the recipe context itself.
+export const Group = withProvider(Checkbox.Group, 'group')
 export const HiddenInput = Checkbox.HiddenInput
