@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ark-ui/react": "^5.39.3",
@@ -18,7 +19,6 @@
   "devDependencies": {
     "@pandacss/dev": "^2.2.0",
     "@pandacss/preset-base": "2.2.0",
-    "@pandacss/preset-panda": "2.2.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

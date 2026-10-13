@@ -1,0 +1,130 @@
+import { defineTokens } from '@pandacss/dev'
+
+// Scales shared by every theme. They match preset-panda's values so Panda's built-in
+// patterns keep working after preset-panda is removed. Anything a theme can change
+// lives in the contract instead, which is why there are no colors, shadows,
+// durations or easings here.
+const spacing = {
+  0: { value: '0rem' },
+  0.5: { value: '0.125rem' },
+  1: { value: '0.25rem' },
+  1.5: { value: '0.375rem' },
+  2: { value: '0.5rem' },
+  2.5: { value: '0.625rem' },
+  3: { value: '0.75rem' },
+  3.5: { value: '0.875rem' },
+  4: { value: '1rem' },
+  4.5: { value: '1.125rem' },
+  5: { value: '1.25rem' },
+  6: { value: '1.5rem' },
+  7: { value: '1.75rem' },
+  8: { value: '2rem' },
+  9: { value: '2.25rem' },
+  10: { value: '2.5rem' },
+  12: { value: '3rem' },
+  14: { value: '3.5rem' },
+  16: { value: '4rem' },
+  20: { value: '5rem' },
+  24: { value: '6rem' },
+  32: { value: '8rem' },
+}
+
+export const primitives = defineTokens({
+  spacing,
+  sizes: {
+    ...spacing,
+    xs: { value: '20rem' },
+    sm: { value: '24rem' },
+    md: { value: '28rem' },
+    lg: { value: '32rem' },
+    xl: { value: '36rem' },
+    '2xl': { value: '42rem' },
+    '3xl': { value: '48rem' },
+    '4xl': { value: '56rem' },
+    '5xl': { value: '64rem' },
+    '6xl': { value: '72rem' },
+    '7xl': { value: '80rem' },
+    '8xl': { value: '90rem' },
+    prose: { value: '65ch' },
+    full: { value: '100%' },
+    min: { value: 'min-content' },
+    max: { value: 'max-content' },
+    fit: { value: 'fit-content' },
+  },
+  fontSizes: {
+    '2xs': { value: '0.625rem' },
+    xs: { value: '0.75rem' },
+    sm: { value: '0.875rem' },
+    md: { value: '1rem' },
+    lg: { value: '1.125rem' },
+    xl: { value: '1.25rem' },
+    '2xl': { value: '1.5rem' },
+    '3xl': { value: '1.875rem' },
+    '4xl': { value: '2.25rem' },
+    '5xl': { value: '3rem' },
+  },
+  fontWeights: {
+    normal: { value: '400' },
+    medium: { value: '500' },
+    semibold: { value: '600' },
+    bold: { value: '700' },
+    extrabold: { value: '800' },
+    black: { value: '900' },
+  },
+  lineHeights: {
+    none: { value: '1' },
+    tight: { value: '1.25' },
+    snug: { value: '1.375' },
+    normal: { value: '1.5' },
+    relaxed: { value: '1.625' },
+  },
+  letterSpacings: {
+    tight: { value: '-0.025em' },
+    normal: { value: '0em' },
+    wide: { value: '0.025em' },
+    wider: { value: '0.05em' },
+    widest: { value: '0.1em' },
+  },
+  radii: {
+    none: { value: '0' },
+    full: { value: '9999px' },
+  },
+  colors: {
+    transparent: { value: 'transparent' },
+    current: { value: 'currentColor' },
+  },
+  zIndex: {
+    base: { value: 0 },
+    raised: { value: 1 },
+    sticky: { value: 100 },
+    overlay: { value: 1000 },
+    popover: { value: 1100 },
+    toast: { value: 1200 },
+    tooltip: { value: 1300 },
+  },
+  aspectRatios: {
+    square: { value: '1 / 1' },
+    landscape: { value: '4 / 3' },
+    wide: { value: '16 / 9' },
+  },
+})
+
+export const breakpoints = {
+  sm: '40rem',
+  md: '48rem',
+  lg: '64rem',
+  xl: '80rem',
+  '2xl': '96rem',
+}
+
+export const containerSizes = {
+  xs: '20rem',
+  sm: '24rem',
+  md: '28rem',
+  lg: '32rem',
+  xl: '36rem',
+  '2xl': '42rem',
+  '3xl': '48rem',
+  '4xl': '56rem',
+  '5xl': '64rem',
+}

@@ -1,12 +1,34 @@
 import { defineConfig } from '@pandacss/dev'
+import { themeConditions } from './theme/global/conditions'
+import { globalCss } from './theme/global/global-css'
+import { pressOffset } from './theme/global/utilities'
+import { breakpoints, containerSizes, primitives } from './theme/primitives'
+import { THEME_IDS } from './theme/registry'
+import { everyday, themes } from './theme/themes'
 
 export default defineConfig({
-  presets: ['@pandacss/preset-base', '@pandacss/preset-panda'],
   preflight: true,
-  include: ['./src/**/*.{js,jsx,ts,tsx}', './pages/**/*.{js,jsx,ts,tsx}'],
+  // preset-base only: utilities, conditions and patterns. Every color comes from a theme.
+  presets: ['@pandacss/preset-base'],
+  strictTokens: true,
+  strictPropertyValues: true,
+  jsxFramework: 'react',
+  include: ['./src/**/*.{ts,tsx}'],
   exclude: [],
+  outdir: 'styled-system',
+  conditions: { extend: themeConditions },
+  utilities: { extend: { pressOffset } },
+  globalCss,
   theme: {
-    extend: {},
+    extend: {
+      breakpoints,
+      containers: containerSizes,
+      tokens: primitives,
+      // Everyday fills :root, so the page is fully styled before any theme attribute is set.
+      semanticTokens: everyday.semanticTokens,
+      containerNames: ['preview'],
+    },
   },
-  outdir: "styled-system",
+  themes,
+  staticCss: { themes: THEME_IDS },
 })

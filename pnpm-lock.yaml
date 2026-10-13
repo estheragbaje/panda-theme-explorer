@@ -27,9 +27,6 @@ importers:
       '@pandacss/preset-base':
         specifier: 2.2.0
         version: 2.2.0
-      '@pandacss/preset-panda':
-        specifier: 2.2.0
-        version: 2.2.0
       '@types/node':
         specifier: ^20
         version: 20.19.43
@@ -548,10 +545,6 @@ packages:
 
   '@pandacss/preset-base@2.2.0':
     resolution: {integrity: sha512-Cu3A/5ElXI3o5CuVLn/Y9/+CppaMzE/2pXCS5z2bb3k09Ucq3QVA7CQN4VoizIH1Fw8ibc99jOwqR8qZRRkqbQ==}
-    engines: {node: '>=22'}
-
-  '@pandacss/preset-panda@2.2.0':
-    resolution: {integrity: sha512-gk0hVKGATcoJ5eCNxTSUBF5bDqkjF7XdnJSXFWPHICgDF20VO0z3iO3E3AijynEXyx/5JM7dQly/fM3z7QYu0g==}
     engines: {node: '>=22'}
 
   '@pandacss/types@2.2.0':
@@ -2969,10 +2962,6 @@ snapshots:
       - '@emnapi/runtime'
 
   '@pandacss/preset-base@2.2.0':
-    dependencies:
-      '@pandacss/types': 2.2.0
-
-  '@pandacss/preset-panda@2.2.0':
     dependencies:
       '@pandacss/types': 2.2.0
 
