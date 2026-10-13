@@ -21,6 +21,7 @@ const spacing = {
   8: { value: '2rem' },
   9: { value: '2.25rem' },
   10: { value: '2.5rem' },
+  11: { value: '2.75rem' },
   12: { value: '3rem' },
   14: { value: '3.5rem' },
   16: { value: '4rem' },

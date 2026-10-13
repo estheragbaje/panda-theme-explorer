@@ -1,4 +1,5 @@
 import { css } from '../../styled-system/css'
+import { ModeSwitch } from '../explorer/mode-switch'
 
 // Phase 1 check page: shows the Everyday contract rendering. Replaced by the trip page in phase 4.
 // colorPalette values are literals because Panda extracts styles at build time and
@@ -15,9 +16,12 @@ export default function Home() {
   return (
     <main className={css({ maxW: '3xl', mx: 'auto', px: '6', py: '16', display: 'grid', gap: '8' })}>
       <header className={css({ display: 'grid', gap: '2' })}>
-        <p className={css({ fontSize: 'xs', color: 'fg.muted', textTransform: 'uppercase', letterSpacing: 'widest' })}>
-          Phase 1 · Everyday
-        </p>
+        <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '4' })}>
+          <p className={css({ fontSize: 'xs', color: 'fg.muted', textTransform: 'uppercase', letterSpacing: 'widest' })}>
+            Phase 2 · Everyday
+          </p>
+          <ModeSwitch />
+        </div>
         <h1
           className={css({
             fontFamily: 'display',

@@ -2,7 +2,9 @@ import { defineConfig } from '@pandacss/dev'
 import { themeConditions } from './theme/global/conditions'
 import { globalCss } from './theme/global/global-css'
 import { pressOffset } from './theme/global/utilities'
+import { keyframes, viewTransitions } from './theme/global/view-transitions'
 import { breakpoints, containerSizes, primitives } from './theme/primitives'
+import { switchRecipe } from './theme/recipes/switch'
 import { THEME_IDS } from './theme/registry'
 import { everyday, themes } from './theme/themes'
 
@@ -26,6 +28,9 @@ export default defineConfig({
       tokens: primitives,
       // Everyday fills :root, so the page is fully styled before any theme attribute is set.
       semanticTokens: everyday.semanticTokens,
+      keyframes,
+      viewTransitions,
+      slotRecipes: { switchRecipe },
       containerNames: ['preview'],
     },
   },
