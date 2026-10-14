@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { LuBedDouble, LuCheck, LuHeart, LuMapPin, LuRotateCcw, LuStar, LuStarHalf } from 'react-icons/lu'
+import { LuCheck, LuHeart, LuMapPin, LuRotateCcw, LuStar, LuStarHalf } from 'react-icons/lu'
 import { css } from '../../../styled-system/css'
 import * as Card from '../../ui/card'
 import * as Checkbox from '../../ui/checkbox'
@@ -11,6 +11,7 @@ import * as SegmentGroup from '../../ui/segment-group'
 import * as Slider from '../../ui/slider'
 import * as Toggle from '../../ui/toggle'
 import { AMENITIES, STAYS, type Amenity, type Stay, type StayType } from '../data'
+import { Photo } from '../photo'
 import { Money, Section } from '../shared'
 
 const PRICE_MIN = 150
@@ -29,21 +30,8 @@ function StayCard({ stay, saved, onSavedChange }: { stay: Stay; saved: boolean; 
       {/* Clips the image to the card's corners; on the root it would also clip decorations
           drawn outside the card, like Panda's ears. */}
       <div className={css({ display: 'flex', flexDirection: 'column', flex: '1', rounded: 'inherit', overflow: 'hidden' })}>
-        {/* Image area drawn from theme tokens: no stock photography. */}
-        <div
-          className={css({
-            position: 'relative',
-            display: 'grid',
-            placeItems: 'center',
-            aspectRatio: 'wide',
-            bg: 'bg.subtle',
-            bgImage: 'canvas',
-            bgSize: '{sizes.canvasTile}',
-            color: 'fg.subtle',
-            '& > svg': { w: '10', h: '10' },
-          })}
-        >
-          <LuBedDouble aria-hidden />
+        <div className={css({ position: 'relative' })}>
+          <Photo photo={stay.photo} sizes="(min-width: 80rem) 20rem, (min-width: 48rem) 33vw, 100vw" className={css({ aspectRatio: 'wide' })} />
           <div className={css({ position: 'absolute', top: '3', insetEnd: '3' })}>
             <Toggle.Root pressed={saved} onPressedChange={onSavedChange} aria-label={saved ? `Remove ${stay.name} from saved` : `Save ${stay.name}`}>
               <LuHeart />

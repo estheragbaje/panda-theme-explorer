@@ -27,7 +27,18 @@ const tile = css({
   shadow: 'control',
 })
 
-const swatch = css({ w: '3', h: '3', rounded: 'full', borderWidth: 'card', borderColor: 'border.strong' })
+// The theme's palette as one strip: page, card, accent tint, accent, ink.
+const palette = css({
+  gridColumn: '1 / -1',
+  alignSelf: 'end',
+  display: 'flex',
+  h: '2.5',
+  rounded: 'badge',
+  overflow: 'hidden',
+  borderWidth: 'card',
+  borderColor: 'border.default',
+  '& > span': { flex: '1' },
+})
 
 // Each item is wrapped in its own theme, so the row is a small live specimen.
 // Rows share the rail's height, so the six themes fill the panel; below 3.5rem each the
@@ -37,6 +48,7 @@ const item = css({
   flex: '1',
   minH: '14',
   w: 'full',
+  overflow: 'hidden',
   bg: 'bg.canvas',
   color: 'fg.default',
   borderWidth: 'card',
@@ -89,7 +101,7 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
                 css(
                   collapsed
                     ? { flexDirection: 'column', gap: '1', p: '1.5', alignItems: 'center' }
-                    : { gap: '3', p: '2.5', alignItems: 'center' },
+                    : { display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', gridTemplateRows: 'auto 1fr', gap: '3', p: '3', alignItems: 'center' },
                 ),
               )}
             >
@@ -106,10 +118,12 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
                 {t.label}
               </RadioGroup.ItemText>
               {!collapsed && (
-                <span aria-hidden className={css({ display: 'flex', gap: '1', ms: 'auto' })}>
-                  <span className={swatch} style={{ background: 'var(--colors-bg-canvas)' }} />
-                  <span className={swatch} style={{ background: 'var(--colors-accent-solid)' }} />
-                  <span className={swatch} style={{ background: 'var(--colors-fg-default)' }} />
+                <span aria-hidden className={palette}>
+                  <span className={css({ bg: 'bg.canvas' })} />
+                  <span className={css({ bg: 'bg.card' })} />
+                  <span className={css({ bg: 'accent.subtle' })} />
+                  <span className={css({ bg: 'accent.solid' })} />
+                  <span className={css({ bg: 'fg.default' })} />
                 </span>
               )}
               <RadioGroup.ItemControl className={css({ srOnly: true })} />

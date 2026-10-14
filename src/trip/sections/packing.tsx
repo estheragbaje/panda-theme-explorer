@@ -22,9 +22,52 @@ export function PackingSection() {
 
   return (
     <Section id="packing" title="Packing list" description="November in San Francisco is mild but foggy. Layers matter more than anything else.">
-      <div className={css({ display: 'grid', gap: '5', gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/5xl': '2fr 1fr' }, alignItems: 'start' })}>
+      <div className={css({ display: 'grid', gap: '5' })}>
+        {/* Progress and extras first, then the full-width checklist, so items don't wrap. */}
+        <div className={css({ display: 'grid', gap: '5', gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/3xl': '1fr 1fr' }, alignItems: 'end' })}>
+          <Card.Root>
+            <Card.Body className={css({ flexDirection: 'row', alignItems: 'center', gap: '4' })}>
+              <Progress.Root value={Math.round((packed.length / totalItems) * 100)} className={css({ w: 'fit' })} aria-label="Packing progress">
+                <Progress.Circle>
+                  <Progress.CircleTrack />
+                  <Progress.CircleRange />
+                </Progress.Circle>
+              </Progress.Root>
+              <div>
+                <p className={css({ textStyle: 'title' })} aria-live="polite">
+                  {packed.length} of {totalItems} packed
+                </p>
+                <p className={css({ fontSize: 'sm', color: 'fg.muted' })}>
+                  {totalItems - packed.length === 0 ? 'Ready to go.' : `${totalItems - packed.length} still to pack`}
+                </p>
+              </div>
+            </Card.Body>
+          </Card.Root>
+          <TagsInput.Root value={extras} onValueChange={(d) => setExtras(d.value)} max={10}>
+            <TagsInput.Label>Your extras</TagsInput.Label>
+            <TagsInput.Control>
+              <TagsInput.Context>
+                {(api) =>
+                  api.value.map((value, index) => (
+                    <TagsInput.Item key={value} index={index} value={value}>
+                      <TagsInput.ItemPreview>
+                        <TagsInput.ItemText>{value}</TagsInput.ItemText>
+                        <TagsInput.ItemDeleteTrigger aria-label={`Remove ${value}`}>
+                          <LuX />
+                        </TagsInput.ItemDeleteTrigger>
+                      </TagsInput.ItemPreview>
+                      <TagsInput.ItemInput />
+                    </TagsInput.Item>
+                  ))
+                }
+              </TagsInput.Context>
+              <TagsInput.Input placeholder="Add an item and press Enter" />
+            </TagsInput.Control>
+            <TagsInput.HiddenInput />
+          </TagsInput.Root>
+        </div>
         <Card.Root>
-          <Card.Body className={css({ gap: '6', gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/2xl': 'repeat(2, minmax(0, 1fr))', '@preview/4xl': 'repeat(3, minmax(0, 1fr))' }, display: 'grid' })}>
+          <Card.Body className={css({ gap: '6', gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/2xl': 'repeat(2, minmax(0, 1fr))', '@preview/3xl': 'repeat(3, minmax(0, 1fr))' }, display: 'grid' })}>
             {PACKING.map((group) => {
               const ids = group.items.map((i) => i.id)
               const done = ids.filter((id) => packed.includes(id)).length
@@ -73,49 +116,6 @@ export function PackingSection() {
             })}
           </Card.Body>
         </Card.Root>
-
-        <div className={css({ display: 'grid', gap: '5' })}>
-          <Card.Root>
-            <Card.Body className={css({ flexDirection: 'row', alignItems: 'center', gap: '4' })}>
-              <Progress.Root value={Math.round((packed.length / totalItems) * 100)} className={css({ w: 'fit' })} aria-label="Packing progress">
-                <Progress.Circle>
-                  <Progress.CircleTrack />
-                  <Progress.CircleRange />
-                </Progress.Circle>
-              </Progress.Root>
-              <div>
-                <p className={css({ textStyle: 'title' })} aria-live="polite">
-                  {packed.length} of {totalItems} packed
-                </p>
-                <p className={css({ fontSize: 'sm', color: 'fg.muted' })}>
-                  {totalItems - packed.length === 0 ? 'Ready to go.' : `${totalItems - packed.length} still to pack`}
-                </p>
-              </div>
-            </Card.Body>
-          </Card.Root>
-          <TagsInput.Root value={extras} onValueChange={(d) => setExtras(d.value)} max={10}>
-            <TagsInput.Label>Your extras</TagsInput.Label>
-            <TagsInput.Control>
-              <TagsInput.Context>
-                {(api) =>
-                  api.value.map((value, index) => (
-                    <TagsInput.Item key={value} index={index} value={value}>
-                      <TagsInput.ItemPreview>
-                        <TagsInput.ItemText>{value}</TagsInput.ItemText>
-                        <TagsInput.ItemDeleteTrigger aria-label={`Remove ${value}`}>
-                          <LuX />
-                        </TagsInput.ItemDeleteTrigger>
-                      </TagsInput.ItemPreview>
-                      <TagsInput.ItemInput />
-                    </TagsInput.Item>
-                  ))
-                }
-              </TagsInput.Context>
-              <TagsInput.Input placeholder="Add an item and press Enter" />
-            </TagsInput.Control>
-            <TagsInput.HiddenInput />
-          </TagsInput.Root>
-        </div>
       </div>
     </Section>
   )

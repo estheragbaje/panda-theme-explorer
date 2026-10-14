@@ -10,6 +10,7 @@ import * as Switch from '../../ui/switch'
 import * as Tabs from '../../ui/tabs'
 import * as Tooltip from '../../ui/tooltip'
 import { ITINERARY, type Stop } from '../data'
+import { Photo } from '../photo'
 import { Section } from '../shared'
 
 function StopItem({ stop, inCalendar, onCalendarChange }: { stop: Stop; inCalendar: boolean; onCalendarChange: (on: boolean) => void }) {
@@ -18,9 +19,10 @@ function StopItem({ stop, inCalendar, onCalendarChange }: { stop: Stop; inCalend
       className={css({
         position: 'relative',
         display: 'grid',
-        gridTemplateColumns: '[4rem 1fr]',
-        gap: '4',
-        pb: '6',
+        // Time, details, and a photo of the place once there's room for it.
+        gridTemplateColumns: { base: '[4rem minmax(0, 1fr)]', '@preview/2xl': '[4rem minmax(0, 1fr) 10rem]' },
+        columnGap: '4',
+        pb: '8',
         // The timeline line, drawn between stops.
         _before: { content: '""', position: 'absolute', top: '7', bottom: '0', insetStart: '[1.5rem]', w: '[1px]', bg: 'border.default' },
         _last: { pb: '0', _before: { display: 'none' } },
@@ -53,25 +55,33 @@ function StopItem({ stop, inCalendar, onCalendarChange }: { stop: Stop; inCalend
           )}
         </div>
         <p className={css({ fontSize: 'sm', color: 'fg.muted' })}>{stop.place}</p>
+        {/* Tips and the calendar switch share a row; the tip opens underneath both. */}
         <Collapsible.Root>
-          <Collapsible.Trigger className={css({ w: 'fit', fontSize: 'sm', color: 'accent.text', gap: '1' })}>
-            Tips
-            <Collapsible.Indicator>
-              <LuChevronDown />
-            </Collapsible.Indicator>
-          </Collapsible.Trigger>
+          <div className={css({ display: 'flex', flexWrap: 'wrap', alignItems: 'center', columnGap: '6', rowGap: '2', pt: '1' })}>
+            <Collapsible.Trigger className={css({ w: 'fit', fontSize: 'sm', color: 'accent.text', gap: '1' })}>
+              Tips
+              <Collapsible.Indicator>
+                <LuChevronDown />
+              </Collapsible.Indicator>
+            </Collapsible.Trigger>
+            <Switch.Root checked={inCalendar} onCheckedChange={(d) => onCalendarChange(d.checked)}>
+              <Switch.Control>
+                <Switch.Thumb />
+              </Switch.Control>
+              <Switch.Label>Add to calendar</Switch.Label>
+              <Switch.HiddenInput />
+            </Switch.Root>
+          </div>
           <Collapsible.Content>
-            <p className={css({ pt: '1.5', fontSize: 'sm', maxW: 'prose' })}>{stop.tip}</p>
+            <p className={css({ pt: '2', fontSize: 'sm', maxW: 'prose' })}>{stop.tip}</p>
           </Collapsible.Content>
         </Collapsible.Root>
-        <Switch.Root checked={inCalendar} onCheckedChange={(d) => onCalendarChange(d.checked)}>
-          <Switch.Control>
-            <Switch.Thumb />
-          </Switch.Control>
-          <Switch.Label>Add to calendar</Switch.Label>
-          <Switch.HiddenInput />
-        </Switch.Root>
       </div>
+      <Photo
+        photo={stop.photo}
+        sizes="10rem"
+        className={css({ display: { base: 'none', '@preview/2xl': 'block' }, alignSelf: 'start', aspectRatio: '[4 / 3]', rounded: 'card' })}
+      />
     </li>
   )
 }

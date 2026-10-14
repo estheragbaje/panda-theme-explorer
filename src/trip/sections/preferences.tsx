@@ -70,32 +70,36 @@ export function PreferencesSection() {
           ))}
         </fieldset>
 
-        <Select.Root collection={languages} defaultValue={['en']} positioning={{ sameWidth: true }}>
-          <Select.Label>Language</Select.Label>
-          <Select.Control>
-            <Select.Trigger>
-              <Select.ValueText />
-              <Select.Indicator>
-                <LuChevronDown />
-              </Select.Indicator>
-            </Select.Trigger>
-          </Select.Control>
-          <Portal>
-            <Select.Positioner>
-              <Select.Content>
-                {languages.items.map((item) => (
-                  <Select.Item key={item.value} item={item}>
-                    <Select.ItemText>{item.label}</Select.ItemText>
-                    <Select.ItemIndicator>
-                      <LuCheck />
-                    </Select.ItemIndicator>
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Positioner>
-          </Portal>
-          <Select.HiddenSelect />
-        </Select.Root>
+        {/* A panel of its own, so it sits level with Notifications instead of floating. */}
+        <div className={css({ layerStyle: 'surface', p: 'inset', display: 'grid', gap: '2' })}>
+          <Select.Root collection={languages} defaultValue={['en']} positioning={{ sameWidth: true }}>
+            <Select.Label>Language</Select.Label>
+            <Select.Control>
+              <Select.Trigger>
+                <Select.ValueText />
+                <Select.Indicator>
+                  <LuChevronDown />
+                </Select.Indicator>
+              </Select.Trigger>
+            </Select.Control>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  {languages.items.map((item) => (
+                    <Select.Item key={item.value} item={item}>
+                      <Select.ItemText>{item.label}</Select.ItemText>
+                      <Select.ItemIndicator>
+                        <LuCheck />
+                      </Select.ItemIndicator>
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+            <Select.HiddenSelect />
+          </Select.Root>
+          <p className={css({ fontSize: 'sm', color: 'fg.muted' })}>Used for tips, reminders and the trip summary.</p>
+        </div>
       </div>
     </Section>
   )
