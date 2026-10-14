@@ -30,8 +30,12 @@ const tile = css({
 const swatch = css({ w: '3', h: '3', rounded: 'full', borderWidth: 'card', borderColor: 'border.strong' })
 
 // Each item is wrapped in its own theme, so the row is a small live specimen.
+// Rows share the rail's height, so the six themes fill the panel; below 3.5rem each the
+// list scrolls instead.
 const item = css({
   position: 'relative',
+  flex: '1',
+  minH: '14',
   w: 'full',
   bg: 'bg.canvas',
   color: 'fg.default',
@@ -73,9 +77,9 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
         value={theme}
         onValueChange={(d) => d.value && onThemeChange(d.value as ThemeId)}
         aria-label="Theme"
-        className={css({ flex: '1', minH: '0', overflowY: 'auto', overscrollBehavior: 'contain', px: collapsed ? '1.5' : '3', pb: '3', gap: '2' })}
+        className={css({ flex: '1', minH: '0', overflowY: 'auto', overscrollBehavior: 'contain', px: collapsed ? '1.5' : '3', pb: '3', gap: '2', '& > div': { display: 'flex', flex: '1', minH: '14' } })}
       >
-        {THEMES.map((t, index) => {
+        {THEMES.map((t) => {
           const row = (
             <RadioGroup.Item
               value={t.id}
@@ -92,15 +96,14 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
               <span aria-hidden className={tile}>
                 {t.monogram}
               </span>
-              <RadioGroup.ItemText className={css(collapsed ? { fontSize: '2xs', maxW: 'full', truncate: true } : { display: 'grid', gap: '0.5', minW: '0' })}>
-                {collapsed ? (
-                  t.label
-                ) : (
-                  <>
-                    <span className={css({ fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display' })}>{t.label}</span>
-                    <span className={css({ fontSize: 'xs', color: 'fg.muted' })}>{t.note}</span>
-                  </>
+              <RadioGroup.ItemText
+                className={css(
+                  collapsed
+                    ? { fontSize: '2xs', maxW: 'full', truncate: true }
+                    : { minW: '0', truncate: true, fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display' },
                 )}
+              >
+                {t.label}
               </RadioGroup.ItemText>
               {!collapsed && (
                 <span aria-hidden className={css({ display: 'flex', gap: '1', ms: 'auto' })}>
@@ -111,12 +114,6 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
               )}
               <RadioGroup.ItemControl className={css({ srOnly: true })} />
               <RadioGroup.ItemHiddenInput />
-              {/* Keyboard hint for 1–9, shown only in the expanded rail. */}
-              {!collapsed && index < 9 && (
-                <kbd aria-hidden className={css({ position: 'absolute', top: '1', insetEnd: '1.5', fontSize: '2xs', color: 'fg.subtle', fontFamily: 'mono' })}>
-                  {index + 1}
-                </kbd>
-              )}
             </RadioGroup.Item>
           )
           return collapsed ? (
@@ -128,7 +125,7 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
                     <Tooltip.Arrow>
                       <Tooltip.ArrowTip />
                     </Tooltip.Arrow>
-                    {t.label}, {t.note}
+                    {t.label}
                   </Tooltip.Content>
                 </Tooltip.Positioner>
               </Portal>

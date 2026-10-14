@@ -55,8 +55,6 @@ export function TripPage() {
               top: '0',
               zIndex: 'sticky',
               bg: 'bg.canvas',
-              borderBottomWidth: 'card',
-              borderColor: 'border.default',
             })}
           >
             <Toc.Context>

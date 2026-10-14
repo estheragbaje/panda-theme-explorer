@@ -59,7 +59,7 @@ export function Inspector({ theme, isDark, onClose }: { theme: ThemeId; isDark: 
   }
 
   return (
-    <aside id="inspector" aria-label="Inspector" className={css({ display: 'flex', flexDirection: 'column', h: 'full', minW: '0', minH: '0', bg: 'bg.surface' })}>
+    <aside id="inspector" aria-label="Inspector" className={css({ display: 'flex', flexDirection: 'column', h: 'full', minW: '64', minH: '0', bg: 'bg.surface' })}>
       <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2', h: '12', ps: '4', pe: '2', flexShrink: '0' })}>
         <div className={css({ minW: '0' })}>
           <p className={css({ textStyle: 'label' })}>Inspector</p>

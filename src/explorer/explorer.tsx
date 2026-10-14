@@ -17,6 +17,7 @@ import { Toaster, toaster } from '../ui/toast'
 import { Inspector } from './inspector'
 import { toggleMode, useIsDark } from './mode'
 import { ModeSwitch } from './mode-switch'
+import { PandaLogo } from './panda-logo'
 import { setTheme, useTheme } from './theme-choice'
 import { ThemeRail } from './theme-rail'
 import { themeSource } from './theme-tokens'
@@ -34,6 +35,8 @@ const RAIL_MAX = 320
 const INSPECTOR_MIN = 260
 const INSPECTOR_MAX = 440
 const CANVAS_MIN = 320
+// Panel open/close animation; matches the splitter recipe's [data-animating] transition.
+const PANEL_MS = 240
 const LAYOUT_KEY = 'pt-layout'
 const SSR_WIDTH = 1280 // assumed until the real width is measured after hydration
 
@@ -74,16 +77,9 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
         px: { base: '3', md: '4' },
         flexShrink: '0',
         bg: 'bg.surface',
-        borderBottomWidth: 'card',
-        borderColor: 'border.default',
       })}
     >
-      <div className={css({ display: 'flex', alignItems: 'baseline', gap: '2', minW: '0' })}>
-        <span className={css({ fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display', fontSize: 'md', whiteSpace: 'nowrap' })}>Panda Themes</span>
-        <span className={css({ fontSize: 'sm', color: 'fg.muted', truncate: true, hideBelow: 'sm' })}>
-          {THEMES.find((t) => t.id === theme)?.label}
-        </span>
-      </div>
+      <PandaLogo className={css({ h: '7', w: 'auto', flexShrink: '0', color: 'fg.default' })} />
       <div className={css({ display: 'flex', alignItems: 'center', gap: '2' })}>
         <button
           type="button"
@@ -162,6 +158,9 @@ export function Explorer() {
   const [measured, setMeasured] = useState(false)
   const [layout, setLayout] = useState<Layout>(DEFAULT_LAYOUT)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  // True while a toggle animates the panels. Drags and window resizes stay instant.
+  const [animating, setAnimating] = useState(false)
+  const animationTimer = useRef<number | undefined>(undefined)
   // Below md the inspector is a drawer, so the header button reflects the drawer there.
   const narrow = useSyncExternalStore(subscribeNarrow, isNarrow, () => false)
   const restored = useRef(false)
@@ -217,6 +216,22 @@ export function Explorer() {
     splitterRef.current.setSizes(sizesFor(next, widthRef.current))
   }, [holdResizeEvents])
 
+  // Toggles animate: the panels ease to their new widths. The rail keeps its full layout
+  // while it narrows and switches to the compact one when the animation ends, and the
+  // inspector stays mounted until it has closed, so nothing reflows mid-animation.
+  const animateTo = useCallback(
+    (next: Layout) => {
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setAnimating(true)
+        window.clearTimeout(animationTimer.current)
+        animationTimer.current = window.setTimeout(() => setAnimating(false), PANEL_MS + 60)
+      }
+      apply(next)
+    },
+    [apply],
+  )
+  useEffect(() => () => window.clearTimeout(animationTimer.current), [])
+
   // Measure the width, then keep measuring on resize.
   useLayoutEffect(() => {
     const el = rootRef.current
@@ -259,12 +274,13 @@ export function Explorer() {
     } catch {}
   }, [layout])
 
-  const toggleRail = useCallback(() => apply({ ...layoutRef.current, railCollapsed: !layoutRef.current.railCollapsed }), [apply])
+  const toggleRail = useCallback(() => animateTo({ ...layoutRef.current, railCollapsed: !layoutRef.current.railCollapsed }), [animateTo])
   const toggleInspector = useCallback(() => {
     if (isNarrow()) setDrawerOpen((open) => !open)
-    else apply({ ...layoutRef.current, inspectorOpen: !layoutRef.current.inspectorOpen })
-  }, [apply])
-  const closeInspector = useCallback(() => apply({ ...layoutRef.current, inspectorOpen: false }), [apply])
+    else animateTo({ ...layoutRef.current, inspectorOpen: !layoutRef.current.inspectorOpen })
+  }, [animateTo])
+  const closeInspector = useCallback(() => animateTo({ ...layoutRef.current, inspectorOpen: false }), [animateTo])
+  const railCompact = layout.railCollapsed && !animating
 
   // Single-key shortcuts; Ark keeps them quiet while an input has focus.
   useHotkeys({
@@ -281,14 +297,14 @@ export function Explorer() {
     <div className={css({ display: 'flex', flexDirection: 'column', h: '[100dvh]', overflow: 'hidden' })}>
       <Header theme={theme} inspectorOpen={narrow ? drawerOpen : layout.inspectorOpen} onToggleInspector={toggleInspector} />
       <ThemeStrip theme={theme} />
-      <Splitter.RootProvider ref={rootRef} value={splitter} className={css({ flex: '1', minH: '0' })}>
+      <Splitter.RootProvider ref={rootRef} value={splitter} data-animating={animating ? '' : undefined} className={css({ flex: '1', minH: '0' })}>
         <Splitter.Panel
           id="rail"
           data-collapsed={layout.railCollapsed ? '' : undefined}
           style={{ '--panel-collapsed-size': `${RAIL_COLLAPSED}px` } as CSSProperties}
           className={css({ hideBelow: 'md', borderEndWidth: 'card', borderColor: 'border.default' })}
         >
-          <ThemeRail theme={theme} onThemeChange={setTheme} collapsed={layout.railCollapsed} onToggleCollapsed={toggleRail} />
+          <ThemeRail theme={theme} onThemeChange={setTheme} collapsed={railCompact} onToggleCollapsed={toggleRail} />
         </Splitter.Panel>
         <Splitter.ResizeTrigger id="rail:canvas" aria-label="Resize theme rail" className={css({ hideBelow: 'md' })} />
         <Splitter.Panel id="canvas">
@@ -308,7 +324,7 @@ export function Explorer() {
           // No border while closed, or the 0-width panel still shows a 1px line.
           className={css({ hideBelow: 'md', borderColor: 'border.default', '&:has(#inspector)': { borderStartWidth: 'card' } })}
         >
-          {layout.inspectorOpen && <Inspector theme={theme} isDark={isDark} onClose={closeInspector} />}
+          {(layout.inspectorOpen || animating) && <Inspector theme={theme} isDark={isDark} onClose={closeInspector} />}
         </Splitter.Panel>
       </Splitter.RootProvider>
 

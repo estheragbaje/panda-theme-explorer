@@ -17,15 +17,13 @@ export const SECTIONS = [
   { value: 'preferences', label: 'Preferences', depth: 2 },
 ]
 
+// Everyone who could come. Its length is the travellers maximum (5).
 export const COMPANIONS = [
   { initials: 'MO', name: 'Mo Okafor' },
   { initials: 'JK', name: 'Jun Kim' },
   { initials: 'AL', name: 'Ana López' },
   { initials: 'RD', name: 'Rui Dias' },
   { initials: 'SP', name: 'Sam Patel' },
-  { initials: 'LP', name: 'Lea Park' },
-  { initials: 'TR', name: 'Tom Reid' },
-  { initials: 'NC', name: 'Nia Cole' },
 ]
 
 export type StayType = 'hotel' | 'guesthouse' | 'apartment'

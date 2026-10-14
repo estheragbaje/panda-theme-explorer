@@ -102,6 +102,18 @@ export const splitter = defineSlotRecipe({
         minWidth: 'var(--panel-collapsed-size) !important',
         maxWidth: 'var(--panel-collapsed-size) !important',
       },
+      // Set on the root while a toggle (not a drag) opens or closes a panel. Ark's inline
+      // min/max widths (and the collapsed pin above) are released so the panel eases all
+      // the way instead of snapping to its minimum; they apply again once it has arrived.
+      // A fixed duration and curve, not the theme's motion tokens: Pixel's stepped easing
+      // and Blueprint's 80ms suit controls but make a panel stutter.
+      '[data-animating] > &, [data-animating] > &[data-collapsed]': {
+        minWidth: '0 !important',
+        maxWidth: 'none !important',
+        transitionProperty: 'flex-grow, flex-shrink, flex-basis',
+        transitionDuration: '[240ms]',
+        transitionTimingFunction: '[cubic-bezier(0.4, 0, 0.2, 1)]',
+      },
     },
     resizeTrigger: {
       position: 'relative',
