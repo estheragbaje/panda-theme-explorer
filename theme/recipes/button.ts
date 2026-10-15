@@ -65,8 +65,11 @@ export const button = defineRecipe({
     },
     // Square, icon-only buttons. Always pass an aria-label.
     iconOnly: {
-      true: { px: '0', aspectRatio: 'square' },
+      true: {},
     },
   },
+  // A compound variant, so it overrides the size's horizontal padding. As a plain variant
+  // it lost to the size class in the stylesheet, and icon buttons came out wider than tall.
+  compoundVariants: [{ iconOnly: true, css: { px: '0', aspectRatio: 'square' } }],
   defaultVariants: { variant: 'solid', size: 'md' },
 })

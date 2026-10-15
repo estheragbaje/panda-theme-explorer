@@ -6,7 +6,7 @@ import { Portal } from '@ark-ui/react/portal'
 import { useSplitter } from '@ark-ui/react/splitter'
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import { LuCheck, LuCopy, LuPanelRightClose, LuPanelRightOpen } from 'react-icons/lu'
-import { css } from '../../styled-system/css'
+import { css, cx } from '../../styled-system/css'
 import { button } from '../../styled-system/recipes'
 import { THEMES, type ThemeId } from '../../theme/registry'
 import { TripPage } from '../trip/trip-page'
@@ -29,7 +29,7 @@ const Canvas = memo(TripPage)
 // current width, so the collapsed rail stays 72px whatever the window size.
 type Layout = { railPx: number; railCollapsed: boolean; inspectorPx: number; inspectorOpen: boolean }
 const DEFAULT_LAYOUT: Layout = { railPx: 248, railCollapsed: false, inspectorPx: 320, inspectorOpen: false }
-const RAIL_COLLAPSED = 72
+const RAIL_COLLAPSED = 80
 const RAIL_MIN = 200
 const RAIL_MAX = 320
 const INSPECTOR_MIN = 260
@@ -50,10 +50,16 @@ const subscribeNarrow = (onChange: () => void) => {
 
 const toPct = (px: number, width: number) => (px / Math.max(width, 1)) * 100
 
+// The resize handles are 16px gutters (the inspector's only while it's open). Ark shares
+// out what's left after them, so pixel sizes convert against that space, not the width.
+const GUTTER = 16
+const panelSpace = (width: number, inspectorOpen: boolean) => width - GUTTER - (inspectorOpen ? GUTTER : 0)
+
 // Splitter percentages for a layout at a given width.
 function sizesFor(l: Layout, width: number) {
-  const rail = toPct(l.railCollapsed ? RAIL_COLLAPSED : l.railPx, width)
-  const inspector = l.inspectorOpen ? toPct(l.inspectorPx, width) : 0
+  const space = panelSpace(width, l.inspectorOpen)
+  const rail = toPct(l.railCollapsed ? RAIL_COLLAPSED : l.railPx, space)
+  const inspector = l.inspectorOpen ? toPct(l.inspectorPx, space) : 0
   return [rail, 100 - rail - inspector, inspector]
 }
 
@@ -65,18 +71,43 @@ function readLayout(): Layout {
   return DEFAULT_LAYOUT
 }
 
+// The explorer's own chrome (header, rail, inspector) always wears Everyday, so the tool
+// stays still while the preview changes. CHROME marks those parts; the preview canvas
+// inherits the chosen theme from <html>, which the head script sets before first paint.
+const CHROME = { 'data-panda-theme': 'everyday' } as const
+
+// Pill-shaped chrome actions: one dark primary, quiet secondaries.
+const pill = css({ rounded: 'full', px: '4' })
+const primaryPill = cx(pill, css({ colorPalette: 'neutral' }))
+
+// Resize handles are the gutters between the floating panels: invisible until hovered,
+// focused or dragged, when a short grip appears.
+const gutter = css({
+  hideBelow: 'md',
+  w: '4',
+  mx: '0',
+  _before: { insetBlock: '[calc(50% - 1.5rem)]', insetInlineStart: '[calc(50% - 1.5px)]', w: '[3px]', rounded: 'full', bg: 'transparent' },
+  _hover: { _before: { bg: 'border.strong' } },
+  _dragging: { _before: { bg: 'fg.muted' } },
+  _focusVisible: { _before: { bg: 'focusRing', w: '[3px]' } },
+})
+
+// Floating panels: rounded cards on the backdrop, separated by the gutters.
+const panelCard = css({ h: 'full', bg: 'bg.surface', borderWidth: 'card', borderColor: 'border.default', rounded: '[1.25rem]', overflow: 'hidden' })
+
 function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; inspectorOpen: boolean; onToggleInspector: () => void }) {
   return (
     <header
+      {...CHROME}
       className={css({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '3',
-        h: '14',
-        px: { base: '3', md: '4' },
+        h: '16',
+        px: { base: '4', md: '5' },
         flexShrink: '0',
-        bg: 'bg.surface',
+        color: 'fg.default',
       })}
     >
       <PandaLogo className={css({ h: '7', w: 'auto', flexShrink: '0', color: 'fg.default' })} />
@@ -89,7 +120,7 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
           aria-controls={inspectorOpen ? 'inspector' : undefined}
           title="Inspector (])"
           aria-label="Inspector"
-          className={button({ variant: inspectorOpen ? 'tonal' : 'outline', size: 'sm' })}
+          className={cx(button({ variant: 'tonal', size: 'sm' }), pill, css({ colorPalette: inspectorOpen ? 'accent' : 'neutral' }))}
         >
           {inspectorOpen ? <LuPanelRightClose /> : <LuPanelRightOpen />}
           {/* Icon-only on phones, so the header fits the widest theme faces (Pixel). */}
@@ -99,7 +130,7 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
           value={themeSource(theme)}
           onStatusChange={(d) => d.copied && toaster.create({ title: 'Theme copied', description: `${theme}.ts source, ready to paste` })}
         >
-          <Clipboard.Trigger className={button({ variant: 'outline', size: 'sm' })} aria-label="Copy theme source">
+          <Clipboard.Trigger className={cx(button({ variant: 'solid', size: 'sm' }), primaryPill)} aria-label="Copy theme source">
             <Clipboard.Indicator copied={<LuCheck />}>
               <LuCopy />
             </Clipboard.Indicator>
@@ -120,7 +151,8 @@ function ThemeStrip({ theme }: { theme: ThemeId }) {
       onValueChange={(d) => d.value && setTheme(d.value as ThemeId)}
       orientation="horizontal"
       aria-label="Theme"
-      className={css({ hideFrom: 'md', flexWrap: 'nowrap', overflowX: 'auto', gap: '2', px: '3', py: '2', bg: 'bg.surface', borderBottomWidth: 'card', borderColor: 'border.default', scrollbarWidth: 'none' })}
+      {...CHROME}
+      className={css({ hideFrom: 'md', flexWrap: 'nowrap', overflowX: 'auto', gap: '2', px: '4', pb: '3', scrollbarWidth: 'none', '--chrome-ring': '{colors.fg.default}' })}
     >
       {THEMES.map((t) => (
         <RadioGroup.Item
@@ -137,7 +169,7 @@ function ThemeStrip({ theme }: { theme: ThemeId }) {
             borderWidth: 'card',
             borderColor: 'border.default',
             rounded: 'control',
-            _checked: { borderColor: 'accent.solid', outlineWidth: 'card', outlineStyle: 'solid', outlineColor: 'accent.solid' },
+            _checked: { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'var(--chrome-ring)', outlineOffset: '0.5' },
             '&:has(:focus-visible)': { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '0.5' },
           })}
         >
@@ -160,6 +192,9 @@ export function Explorer() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   // True while a toggle animates the panels. Drags and window resizes stay instant.
   const [animating, setAnimating] = useState(false)
+  // While a toggle animates, the trip page is laid out once at its final width (the panel
+  // edge reveals or covers it) instead of re-laying out at every intermediate width.
+  const [frozenCanvas, setFrozenCanvas] = useState<number | null>(null)
   const animationTimer = useRef<number | undefined>(undefined)
   // Below md the inspector is a drawer, so the header button reflects the drawer there.
   const narrow = useSyncExternalStore(subscribeNarrow, isNarrow, () => false)
@@ -167,16 +202,18 @@ export function Explorer() {
   const widthRef = useRef(SSR_WIDTH)
   // Refs mirror state for callbacks and effects; render reads the state itself.
   const layoutRef = useRef(layout)
-  // True while we push sizes ourselves (toggles, restore, window resizes). Ark reports
-  // transient sizes then, validated against stale constraints (a collapsed rail at the
-  // old width's collapsed size), so only drags and keyboard resizes are read back.
+  // Only the user's own resizes (a drag, or arrow keys on a focused handle) are read back
+  // into the layout. When we push sizes ourselves (toggles, restore, window resizes) Ark
+  // reports transient sizes validated against stale constraints, such as a collapsed rail
+  // at the old width's collapsed size; those must never be saved. `pushing` also covers
+  // the frames right after a push, in case a handle happens to have focus then.
   const pushing = useRef(false)
   const holdResizeEvents = useCallback(() => {
     pushing.current = true
     requestAnimationFrame(() => requestAnimationFrame(() => (pushing.current = false)))
   }, [])
 
-  const pct = (px: number) => toPct(px, width)
+  const pct = (px: number) => toPct(px, panelSpace(width, layout.inspectorOpen))
 
   // The splitter is uncontrolled: layout changes are pushed with setSizes, and onResize
   // (drags, keyboard resizes, collapses) is read back into the pixel layout.
@@ -189,12 +226,14 @@ export function Explorer() {
     // Ark falls back to defaultSize when the panel constraints change (every resize), so
     // it must describe the current layout, not the first-visit one.
     defaultSize: sizesFor(layout, width),
-    onResize: ({ size }) => {
+    onResize: ({ size, resizeTriggerId }) => {
       // Below md the panels are hidden and Ark squeezes them to fit; that must not be
       // saved as the user's layout.
-      if (isNarrow() || pushing.current) return
-      const railPx = (size[0] / 100) * widthRef.current
-      const inspectorPx = (size[2] / 100) * widthRef.current
+      const byUser = resizeTriggerId != null || !!document.activeElement?.closest('[data-scope=splitter][data-part=resize-trigger]')
+      if (isNarrow() || pushing.current || !byUser) return
+      const space = panelSpace(widthRef.current, size[2] > 0)
+      const railPx = (size[0] / 100) * space
+      const inspectorPx = (size[2] / 100) * space
       setLayout((current) => ({
         railCollapsed: railPx <= RAIL_COLLAPSED + 2,
         railPx: railPx > RAIL_COLLAPSED + 2 ? Math.round(railPx) : current.railPx,
@@ -222,9 +261,15 @@ export function Explorer() {
   const animateTo = useCallback(
     (next: Layout) => {
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const space = panelSpace(widthRef.current, next.inspectorOpen)
+        const rail = next.railCollapsed ? RAIL_COLLAPSED : next.railPx
+        setFrozenCanvas(Math.round(space - rail - (next.inspectorOpen ? next.inspectorPx : 0)))
         setAnimating(true)
         window.clearTimeout(animationTimer.current)
-        animationTimer.current = window.setTimeout(() => setAnimating(false), PANEL_MS + 60)
+        animationTimer.current = window.setTimeout(() => {
+          setAnimating(false)
+          setFrozenCanvas(null)
+        }, PANEL_MS + 60)
       }
       apply(next)
     },
@@ -294,46 +339,66 @@ export function Explorer() {
 
   return (
     // One screen: only the panels scroll, never the document.
-    <div className={css({ display: 'flex', flexDirection: 'column', h: '[100dvh]', overflow: 'hidden' })}>
+    <div className={css({ position: 'relative', isolation: 'isolate', display: 'flex', flexDirection: 'column', h: '[100dvh]', overflow: 'hidden' })}>
+      {/* The backdrop the panels float on, in the chrome's colors. */}
+      <div aria-hidden {...CHROME} className={css({ position: 'absolute', inset: '0', zIndex: 'behind', bg: 'bg.surface' })} />
       <Header theme={theme} inspectorOpen={narrow ? drawerOpen : layout.inspectorOpen} onToggleInspector={toggleInspector} />
       <ThemeStrip theme={theme} />
-      <Splitter.RootProvider ref={rootRef} value={splitter} data-animating={animating ? '' : undefined} className={css({ flex: '1', minH: '0' })}>
+      {/* The gutters sit outside the splitter, so its measured width is the panels' width. */}
+      <div className={css({ display: 'flex', flex: '1', minH: '0', px: { base: '0', md: '4' }, pb: { base: '0', md: '4' } })}>
+      <Splitter.RootProvider ref={rootRef} value={splitter} data-animating={animating ? '' : undefined} className={css({ flex: '1', minW: '0', minH: '0' })}>
         <Splitter.Panel
           id="rail"
+          {...CHROME}
           data-collapsed={layout.railCollapsed ? '' : undefined}
           style={{ '--panel-collapsed-size': `${RAIL_COLLAPSED}px` } as CSSProperties}
-          className={css({ hideBelow: 'md', borderEndWidth: 'card', borderColor: 'border.default' })}
+          className={css({ hideBelow: 'md' })}
         >
           <ThemeRail theme={theme} onThemeChange={setTheme} collapsed={railCompact} onToggleCollapsed={toggleRail} />
         </Splitter.Panel>
-        <Splitter.ResizeTrigger id="rail:canvas" aria-label="Resize theme rail" className={css({ hideBelow: 'md' })} />
+        <Splitter.ResizeTrigger id="rail:canvas" aria-label="Resize theme rail" {...CHROME} className={gutter} />
         <Splitter.Panel id="canvas">
-          {/* The main landmark: screen-reader users jump straight to the trip page. */}
-          <main className={css({ flex: '1', minH: '0' })}>
-            <Canvas />
+          {/* The main landmark: screen-reader users jump straight to the trip page. The
+              preview is framed like a page on a desk; it takes the chosen theme. */}
+          <main
+            className={css({
+              flex: '1',
+              minH: '0',
+              overflow: 'hidden',
+              bg: 'bg.canvas',
+              rounded: { base: 'none', md: '[1.25rem]' },
+              // A neutral hairline that reads on every theme's canvas, light or dark.
+              boxShadow: { base: 'none', md: '[0 0 0 1px rgba(127, 127, 127, 0.22)]' },
+            })}
+          >
+            <div className={css({ h: 'full' })} style={frozenCanvas === null ? undefined : { width: frozenCanvas }}>
+              <Canvas />
+            </div>
           </main>
         </Splitter.Panel>
         <Splitter.ResizeTrigger
           id="canvas:inspector"
           aria-label="Resize inspector"
           disabled={!layout.inspectorOpen}
-          className={css({ hideBelow: 'md', _disabled: { display: 'none' } })}
+          {...CHROME}
+          className={cx(gutter, css({ _disabled: { display: 'none' } }))}
         />
-        <Splitter.Panel
-          id="inspector"
-          // No border while closed, or the 0-width panel still shows a 1px line.
-          className={css({ hideBelow: 'md', borderColor: 'border.default', '&:has(#inspector)': { borderStartWidth: 'card' } })}
-        >
-          {(layout.inspectorOpen || animating) && <Inspector theme={theme} isDark={isDark} onClose={closeInspector} />}
+        <Splitter.Panel id="inspector" {...CHROME} className={css({ hideBelow: 'md' })}>
+          {(layout.inspectorOpen || animating) && (
+            <div className={panelCard}>
+              <Inspector theme={theme} isDark={isDark} onClose={closeInspector} />
+            </div>
+          )}
         </Splitter.Panel>
       </Splitter.RootProvider>
+      </div>
 
       {/* Phones: the inspector as a bottom sheet. */}
       <Drawer.Root open={drawerOpen} onOpenChange={(d) => setDrawerOpen(d.open)}>
         <Portal>
           <Drawer.Backdrop />
           <Drawer.Positioner>
-            <Drawer.Content className={css({ h: '[80svh]', px: '0', pb: '0' })}>
+            <Drawer.Content {...CHROME} className={css({ h: '[80svh]', px: '0', pb: '0' })}>
               <Drawer.Grabber>
                 <Drawer.GrabberIndicator />
               </Drawer.Grabber>

@@ -69,13 +69,13 @@ export const everyday = defineTheme({
     fontSizes: { body: { value: '0.9375rem' } },
     fontWeights: { display: { value: '600' }, button: { value: '500' } },
     letterSpacings: { display: { value: '-0.015em' }, button: { value: '0em' } },
-    radii: { control: { value: '6px' }, card: { value: '10px' }, badge: { value: '9999px' }, mark: { value: '4px' } },
+    radii: { control: { value: '8px' }, card: { value: '14px' }, badge: { value: '9999px' }, mark: { value: '5px' } },
     borderWidths: { control: { value: '1px' }, card: { value: '1px' }, rowMarker: { value: '0px' }, focus: { value: '2px' } },
     borders: { frame: { value: '{borderWidths.card} solid {colors.border.default}' } },
     shadows: {
       raised: {
         value: {
-          base: '0 1px 2px rgba(22, 26, 23, 0.05), 0 4px 12px -4px rgba(22, 26, 23, 0.08)',
+          base: '0 1px 2px rgba(22, 26, 23, 0.04)',
           _dark: '0 0 0 1px rgba(255, 255, 255, 0.02)',
         },
       },

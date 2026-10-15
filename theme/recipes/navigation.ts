@@ -144,8 +144,8 @@ export const splitter = defineSlotRecipe({
 })
 
 // The trip page's section nav. Ark marks every heading in view with data-active (not
-// :active, so not Panda's _active condition); the page sets data-current on the first
-// one only, so a single link is highlighted.
+// :active, so not Panda's _active condition); the page sets data-current on the section
+// being read, so a single link is highlighted.
 export const toc = defineSlotRecipe({
   className: 'toc',
   slots: tocAnatomy.keys(),

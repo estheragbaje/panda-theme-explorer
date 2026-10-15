@@ -28,7 +28,7 @@ const tile = css({
 })
 
 // The theme's palette as one strip: page, card, accent tint, accent, ink.
-const palette = css({
+const paletteStyles = {
   gridColumn: '1 / -1',
   alignSelf: 'end',
   display: 'flex',
@@ -37,17 +37,31 @@ const palette = css({
   overflow: 'hidden',
   borderWidth: 'card',
   borderColor: 'border.default',
-  '& > span': { flex: '1' },
-})
+  '& > span': { flex: '[1 1 0]', minW: '0', transitionProperty: 'flex-grow', transitionDuration: '[180ms]' },
+} as const
 
-// Each item is wrapped in its own theme, so the row is a small live specimen.
-// Rows share the rail's height, so the six themes fill the panel; below 3.5rem each the
-// list scrolls instead.
+// Collapsed: the strip sits in the monogram's column, centered under it at the same width,
+// and only the two signature colors (the accent and its tint) keep any width. The tint,
+// not the highlight: in some dark palettes the highlight equals the accent. Merged into one
+// css() call: as separate classes, the two grid-column rules would tie on specificity.
+const palette = (collapsed: boolean) =>
+  css(paletteStyles, collapsed ? { gridColumn: '1', '& > span:not([data-key])': { flexGrow: '0' } } : {})
+
+// Each tile wears its own theme, so it's a small live specimen. One layout serves both
+// rail states: the monogram stays put at the left, and as the rail narrows the name and
+// the wide palette are covered rather than rearranged, so collapsing never snaps. Tiles
+// share the rail's height in both states; below 3.5rem each the list scrolls instead.
 const item = css({
   position: 'relative',
   flex: '1',
   minH: '14',
   w: 'full',
+  display: 'grid',
+  gridTemplateColumns: '[2.25rem minmax(0, 1fr)]',
+  gridTemplateRows: '[auto 1fr auto]',
+  rowGap: '2',
+  p: '2.5',
+  alignItems: 'center',
   overflow: 'hidden',
   bg: 'bg.canvas',
   color: 'fg.default',
@@ -55,10 +69,21 @@ const item = css({
   borderColor: 'border.default',
   rounded: 'card',
   cursor: 'pointer',
+  transitionProperty: 'border-color, outline-color',
+  transitionDuration: '[150ms]',
   _hover: { borderColor: 'border.strong' },
-  _checked: { borderColor: 'accent.solid', outlineWidth: 'card', outlineStyle: 'solid', outlineColor: 'accent.solid' },
-  '&:has(:focus-visible)': { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '0.5' },
+  // The selection ring is the chrome's ink (--chrome-ring, set on the rail), not the
+  // tile's own accent, so it reads the same on every theme.
+  outlineWidth: 'focus',
+  outlineStyle: 'solid',
+  outlineColor: 'transparent',
+  outlineOffset: '0.5',
+  _checked: { outlineColor: 'var(--chrome-ring)' },
+  '&:has(:focus-visible)': { outlineColor: 'focusRing' },
 })
+
+// Text that belongs to one rail state fades instead of appearing or moving.
+const fade = (visible: boolean) => css({ opacity: visible ? '[1]' : '[0]', transitionProperty: 'opacity', transitionDuration: '[180ms]' })
 
 export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }: {
   theme: ThemeId
@@ -67,72 +92,78 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
   onToggleCollapsed: () => void
 }) {
   return (
-    <nav aria-label="Themes" className={css({ display: 'flex', flexDirection: 'column', h: 'full', bg: 'bg.surface', overflow: 'hidden' })}>
-      <div className={css({ display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between', gap: '2', h: '12', px: '3', flexShrink: '0' })}>
-        {!collapsed && <span className={css({ textStyle: 'label' })}>Themes</span>}
+    <nav
+      aria-label="Themes"
+      className={css({
+        display: 'flex',
+        flexDirection: 'column',
+        h: 'full',
+        bg: 'bg.surface',
+        borderWidth: 'card',
+        borderColor: 'border.default',
+        rounded: '[1.25rem]',
+        overflow: 'hidden',
+        '--chrome-ring': '{colors.fg.default}',
+      })}
+    >
+      {/* The button is pinned to the right edge with a gutter that centers it at the
+          collapsed width, so it doesn't move when the rail collapses. */}
+      <div className={css({ display: 'flex', alignItems: 'center', h: '9', ps: '[22px]', pe: '[23px]', mt: '3', mb: '3', flexShrink: '0' })}>
+        <h2 aria-hidden={collapsed} className={cx(fade(!collapsed), css({ flex: '1', minW: '0', overflow: 'hidden', whiteSpace: 'nowrap', fontSize: 'xl', fontWeight: 'semibold', letterSpacing: 'tight' }))}>
+          Themes
+        </h2>
         <Button
           variant="ghost"
           size="sm"
           iconOnly
           onClick={onToggleCollapsed}
-          aria-label={collapsed ? 'Expand themes ([)' : 'Collapse themes ([)'}
+          aria-label={collapsed ? 'Expand themes' : 'Collapse themes ([)'}
           aria-expanded={!collapsed}
           aria-controls="theme-rail-list"
           title={collapsed ? 'Expand themes ([)' : 'Collapse themes ([)'}
+          className={css({ flexShrink: '0' })}
         >
           {collapsed ? <LuPanelLeftOpen /> : <LuPanelLeftClose />}
         </Button>
       </div>
       {/* aria-controls needs a stable id; Ark replaces the id given to RadioGroup.Root. */}
       <div id="theme-rail-list" className={css({ display: 'contents' })}>
-      <RadioGroup.Root
-        value={theme}
-        onValueChange={(d) => d.value && onThemeChange(d.value as ThemeId)}
-        aria-label="Theme"
-        className={css({ flex: '1', minH: '0', overflowY: 'auto', overscrollBehavior: 'contain', px: collapsed ? '1.5' : '3', pb: '3', gap: '2', '& > div': { display: 'flex', flex: '1', minH: '14' } })}
-      >
-        {THEMES.map((t) => {
-          const row = (
-            <RadioGroup.Item
-              value={t.id}
-              data-panda-theme={t.id}
-              className={cx(
-                item,
-                css(
-                  collapsed
-                    ? { flexDirection: 'column', gap: '1', p: '1.5', alignItems: 'center' }
-                    : { display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', gridTemplateRows: 'auto 1fr', gap: '3', p: '3', alignItems: 'center' },
-                ),
-              )}
-            >
-              <span aria-hidden className={tile}>
-                {t.monogram}
-              </span>
-              <RadioGroup.ItemText
-                className={css(
-                  collapsed
-                    ? { fontSize: '2xs', maxW: 'full', truncate: true }
-                    : { minW: '0', truncate: true, fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display' },
-                )}
-              >
-                {t.label}
-              </RadioGroup.ItemText>
-              {!collapsed && (
-                <span aria-hidden className={palette}>
-                  <span className={css({ bg: 'bg.canvas' })} />
-                  <span className={css({ bg: 'bg.card' })} />
-                  <span className={css({ bg: 'accent.subtle' })} />
-                  <span className={css({ bg: 'accent.solid' })} />
-                  <span className={css({ bg: 'fg.default' })} />
-                </span>
-              )}
-              <RadioGroup.ItemControl className={css({ srOnly: true })} />
-              <RadioGroup.ItemHiddenInput />
-            </RadioGroup.Item>
-          )
-          return collapsed ? (
-            <Tooltip.Root key={t.id} positioning={{ placement: 'right' }} openDelay={150} closeDelay={0}>
-              <Tooltip.Trigger asChild>{row}</Tooltip.Trigger>
+        <RadioGroup.Root
+          value={theme}
+          onValueChange={(d) => d.value && onThemeChange(d.value as ThemeId)}
+          aria-label="Theme"
+          className={css({ flex: '1', minH: '0', overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'contain', px: '2.5', pt: '1', pb: '2.5', gap: '2.5', '& > div': { display: 'flex', flex: '1', minH: '14' } })}
+        >
+          {THEMES.map((t) => (
+            // The same elements in both states (the tooltip is only disabled), so tiles are
+            // never remounted when the rail collapses. The wrapper is the tooltip trigger:
+            // as the tile itself, the tooltip's data-state would replace the radio's.
+            <Tooltip.Root key={t.id} disabled={!collapsed} positioning={{ placement: 'right' }} openDelay={150} closeDelay={0}>
+              <Tooltip.Trigger asChild>
+                <div>
+                    <RadioGroup.Item value={t.id} data-panda-theme={t.id} className={item}>
+                      <span aria-hidden className={tile}>
+                        {t.monogram}
+                      </span>
+                      <RadioGroup.ItemText className={cx(fade(!collapsed), css({ minW: '0', ms: '3', truncate: true, fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display' }))}>
+                        {t.label}
+                      </RadioGroup.ItemText>
+                      {/* The name under the monogram, shown once the rail is collapsed. */}
+                      <span aria-hidden className={cx(fade(collapsed), css({ gridColumn: '1', alignSelf: 'start', w: '[2.25rem]', textAlign: 'center', fontSize: '[0.625rem]', lineHeight: 'tight', whiteSpace: 'nowrap', overflow: 'visible', justifySelf: 'center' }))}>
+                        {t.label}
+                      </span>
+                      <span aria-hidden className={palette(collapsed)}>
+                        <span className={css({ bg: 'bg.canvas' })} />
+                        <span className={css({ bg: 'bg.card' })} />
+                        <span data-key className={css({ bg: 'accent.subtle' })} />
+                        <span data-key className={css({ bg: 'accent.solid' })} />
+                        <span className={css({ bg: 'fg.default' })} />
+                      </span>
+                      <RadioGroup.ItemControl className={css({ srOnly: true })} />
+                      <RadioGroup.ItemHiddenInput />
+                    </RadioGroup.Item>
+                </div>
+              </Tooltip.Trigger>
               <Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Content>
@@ -144,11 +175,8 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
                 </Tooltip.Positioner>
               </Portal>
             </Tooltip.Root>
-          ) : (
-            <div key={t.id}>{row}</div>
-          )
-        })}
-      </RadioGroup.Root>
+          ))}
+        </RadioGroup.Root>
       </div>
     </nav>
   )

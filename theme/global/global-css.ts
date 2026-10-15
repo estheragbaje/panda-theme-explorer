@@ -12,6 +12,13 @@ export const globalCss = defineGlobalStyles({
     '--global-color-placeholder': '{colors.fg.subtle}',
     '--global-color-selection': '{colors.highlight.bg}',
   },
+  // An element that sets a theme also restates the theme's face and ink. font-family and
+  // color inherit as resolved values, so without this, text inside a theme scope (the
+  // explorer's Everyday chrome, a rail tile) would keep the page theme's font.
+  '[data-panda-theme]': {
+    fontFamily: 'body',
+    color: 'fg.default',
+  },
   html: {
     colorScheme: 'light',
   },

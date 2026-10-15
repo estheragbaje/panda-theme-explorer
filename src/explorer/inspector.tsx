@@ -10,8 +10,9 @@ import { Button } from '../ui/primitives'
 import { toaster } from '../ui/toast'
 import { differsFromBaseline, GROUP_ORDER, themeTokens, type TokenRow } from './theme-tokens'
 
-// A visual sample for each kind of token, drawn from the live CSS variable.
-function Sample({ row }: { row: TokenRow }) {
+// A visual sample for each kind of token, drawn from the live CSS variable. The sample
+// carries the inspected theme, because the inspector itself sits in the Everyday chrome.
+function Sample({ row, theme }: { row: TokenRow; theme: ThemeId }) {
   const v = `var(${row.cssVar})`
   const box = css({ w: '7', h: '7', flexShrink: '0', display: 'grid', placeItems: 'center', rounded: 'control', fontSize: 'xs' })
   const styles: Record<string, CSSProperties> = {
@@ -27,7 +28,7 @@ function Sample({ row }: { row: TokenRow }) {
   }
   const text = ['fonts', 'fontSizes', 'fontWeights', 'letterSpacings'].includes(row.category) ? 'Aa' : ''
   return (
-    <span aria-hidden className={box} style={styles[row.category] ?? { background: 'var(--colors-bg-subtle)' }}>
+    <span aria-hidden data-panda-theme={theme} className={box} style={styles[row.category] ?? { background: 'var(--colors-bg-subtle)' }}>
       {text}
     </span>
   )
@@ -131,7 +132,7 @@ export function Inspector({ theme, isDark, onClose }: { theme: ThemeId; isDark: 
                           _focusVisible: { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '[-2px]' },
                         })}
                       >
-                        <Sample row={row} />
+                        <Sample row={row} theme={theme} />
                         <span className={css({ display: 'grid', minW: '0' })}>
                           <span className={css({ fontSize: 'sm', fontWeight: 'medium', truncate: true })}>{row.name}</span>
                           <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'fg.muted', truncate: true })}>
