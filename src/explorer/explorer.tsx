@@ -4,7 +4,7 @@ import { useHotkeys } from '@ark-ui/react/hotkeys'
 import { Portal } from '@ark-ui/react/portal'
 import { useSplitter } from '@ark-ui/react/splitter'
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
-import { LuGithub, LuPanelRightClose, LuPanelRightOpen } from 'react-icons/lu'
+import { LuPanelRightClose, LuPanelRightOpen } from 'react-icons/lu'
 import { css, cx } from '../../styled-system/css'
 import { button } from '../../styled-system/recipes'
 import { THEMES, type ThemeId } from '../../theme/registry'
@@ -95,46 +95,18 @@ const gutter = css({
 // Floating panels: rounded cards on the backdrop, separated by the gutters.
 const panelCard = css({ h: 'full', bg: 'bg.surface', borderWidth: 'card', borderColor: 'border.default', rounded: '[1.25rem]', overflow: 'hidden' })
 
-// What the site is built on, in the header nav and the footer.
-const SITE_LINKS = [
-  { label: 'Panda CSS', href: 'https://panda-css.com' },
-  { label: 'Ark UI', href: 'https://ark-ui.com' },
-  { label: 'Park UI', href: 'https://park-ui.com' },
-]
-
 // External links open in a new tab, announced to screen readers.
 const newTab = { target: '_blank', rel: 'noopener noreferrer' } as const
 const NewTabHint = () => <span className={css({ srOnly: true })}> (opens in a new tab)</span>
-
-const REPO_LINKS = [
-  { label: 'Panda CSS', href: 'https://github.com/chakra-ui/panda' },
-  { label: 'Ark UI', href: 'https://github.com/chakra-ui/ark' },
-]
-
-const navLink = css({
-  display: 'inline-flex',
-  alignItems: 'center',
-  h: '9',
-  px: '3',
-  fontSize: 'sm',
-  fontWeight: 'medium',
-  color: 'fg.muted',
-  rounded: 'full',
-  transitionProperty: 'color',
-  transitionDuration: '[150ms]',
-  _hover: { color: 'fg.default' },
-  _focusVisible: { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '0.5' },
-})
 
 function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; inspectorOpen: boolean; onToggleInspector: () => void }) {
   return (
     <header
       {...CHROME}
       className={css({
-        // Three columns, so the links sit at the true center whatever the sides hold.
-        display: 'grid',
-        gridTemplateColumns: { base: '[auto 1fr]', lg: '[1fr auto 1fr]' },
+        display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-between',
         gap: '3',
         py: { base: '3', md: '5' },
         px: { base: '4', md: '5' },
@@ -143,18 +115,6 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
       })}
     >
       <PandaLogo />
-      <nav aria-label="Site" className={css({ hideBelow: 'lg' })}>
-        <ul className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
-          {SITE_LINKS.map((link) => (
-            <li key={link.label}>
-              <a href={link.href} {...newTab} className={navLink}>
-                {link.label}
-                <NewTabHint />
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
       <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '2' })}>
         <button
           type="button"
@@ -180,15 +140,14 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
 // A slim footer under the panels, in the header's quiet style.
 
 const footerLink = css({
-  display: 'inline-flex',
-  alignItems: 'center',
-  h: '6',
-  gap: '1.5',
-  color: 'fg.muted',
+  color: 'fg.default',
+  textDecorationLine: 'underline',
+  textDecorationColor: 'border.default',
+  textUnderlineOffset: '[3px]',
   rounded: 'mark',
-  transitionProperty: 'color',
+  transitionProperty: 'text-decoration-color',
   transitionDuration: '[150ms]',
-  _hover: { color: 'fg.default' },
+  _hover: { textDecorationColor: 'fg.default' },
   _focusVisible: { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '0.5' },
 })
 
@@ -198,10 +157,6 @@ function Footer() {
       {...CHROME}
       className={css({
         hideBelow: 'md',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '6',
         px: '6',
         pt: '16',
         pb: '6',
@@ -213,31 +168,17 @@ function Footer() {
       <p>
         <span className={css({ color: 'fg.default', fontWeight: 'medium' })}>Panda Themes</span>
         <span aria-hidden className={css({ mx: '2.5', color: 'fg.subtle' })}>|</span>
-        Made with Panda CSS &amp; Ark UI
+        Made with{' '}
+        <a className={footerLink} href="https://panda-css.com" {...newTab}>
+          Panda CSS
+          <NewTabHint />
+        </a>{' '}
+        &amp;{' '}
+        <a className={footerLink} href="https://ark-ui.com" {...newTab}>
+          Ark UI
+          <NewTabHint />
+        </a>
       </p>
-      <nav aria-label="Footer" className={css({ display: 'flex', alignItems: 'center', gap: '6' })}>
-        <ul className={css({ display: 'flex', alignItems: 'center', gap: '6' })}>
-          {SITE_LINKS.map((link) => (
-            <li key={link.label}>
-              <a className={footerLink} href={link.href} {...newTab}>
-                {link.label}
-                <NewTabHint />
-              </a>
-            </li>
-          ))}
-        </ul>
-        <span aria-hidden className={css({ w: '[1px]', h: '4', bg: 'border.default' })} />
-        <ul aria-label="Source on GitHub" className={css({ display: 'flex', alignItems: 'center', gap: '6' })}>
-          {REPO_LINKS.map((link) => (
-            <li key={link.label}>
-              <a className={cx(footerLink, css({ '& svg': { w: '4', h: '4' } }))} href={link.href} {...newTab} aria-label={`${link.label} on GitHub (opens in a new tab)`}>
-                <LuGithub aria-hidden />
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </footer>
   )
 }

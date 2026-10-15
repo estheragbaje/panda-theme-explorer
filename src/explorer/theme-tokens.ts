@@ -65,17 +65,39 @@ export function themeTokens(id: ThemeId): TokenRow[] {
   return rows
 }
 
-// Tokens whose light or dark value differs from the baseline theme.
-export function differsFromBaseline(id: ThemeId): Set<string> {
-  const base = new Map(themeTokens(DEFAULT_THEME).map((r) => [r.path, r]))
-  return new Set(
-    themeTokens(id)
-      .filter((r) => {
-        const b = base.get(r.path)
-        return !b || b.light !== r.light || b.dark !== r.dark
-      })
-      .map((r) => r.path),
-  )
+// A theme's raw values by path and mode, before references are shown as "→ name".
+function rawValues(id: ThemeId): Map<string, { light: string; dark: string }> {
+  const out: { cssVar: string; light: string; dark: string; path?: string }[] = []
+  const map = new Map<string, { light: string; dark: string }>()
+  for (const [category, tree] of Object.entries(themes[id].semanticTokens)) {
+    const start = out.length
+    walkRaw(tree as Record<string, unknown>, category, [], out, false)
+    for (const row of out.slice(start)) map.set(row.path!, { light: row.light, dark: row.dark })
+  }
+  return map
+}
+
+// Follows {category.path} references within the theme, so an alias compares by what it
+// resolves to: Everyday's and Riso's bg.card are both {colors.bg.surface}, but the
+// surfaces differ.
+function resolve(values: Map<string, { light: string; dark: string }>, value: string, mode: 'light' | 'dark', depth = 0): string {
+  if (depth > 8) return value
+  return value.replace(/\{([a-zA-Z]+(?:\.[\w-]+)+)\}/g, (match, path: string) => {
+    const target = values.get(path)
+    return target ? resolve(values, target[mode], mode, depth + 1) : match
+  })
+}
+
+// Tokens whose resolved value, in the given mode, differs from the baseline theme's.
+export function differsFromBaseline(id: ThemeId, mode: 'light' | 'dark'): Set<string> {
+  const base = rawValues(DEFAULT_THEME)
+  const theme = rawValues(id)
+  const changed = new Set<string>()
+  for (const [path, value] of theme) {
+    const b = base.get(path)
+    if (!b || resolve(base, b[mode], mode) !== resolve(theme, value[mode], mode)) changed.add(path)
+  }
+  return changed
 }
 
 // The theme as source a developer can paste into theme/themes/<id>.ts.
@@ -87,17 +109,18 @@ export function themeSource(id: ThemeId): string {
 // "{colors.bg.surface} solid" -> "var(--colors-bg-surface) solid"
 const toCssValue = (value: string) => value.replace(/\{([a-zA-Z]+(?:\.[\w-]+)+)\}/g, (_, path: string) => token.var(path as Token))
 
-function walkRaw(node: Record<string, unknown>, category: string, trail: string[], out: { cssVar: string; light: string; dark: string }[]) {
+function walkRaw(node: Record<string, unknown>, category: string, trail: string[], out: { cssVar: string; light: string; dark: string; path?: string }[], asCss = true) {
   for (const [key, child] of Object.entries(node)) {
     if (!child || typeof child !== 'object') continue
     if ('value' in child) {
       const value = (child as { value: Value }).value
       const light = typeof value === 'object' ? value.base : String(value)
       const dark = typeof value === 'object' ? (value._dark ?? value.base) : String(value)
-      const cssVar = token.var(`${category}.${[...trail, key].join('.')}` as Token).replace(/^var\((.+)\)$/, '$1')
-      out.push({ cssVar, light: toCssValue(light), dark: toCssValue(dark) })
+      const path = `${category}.${[...trail, key].join('.')}`
+      const cssVar = token.var(path as Token).replace(/^var\((.+)\)$/, '$1')
+      out.push({ cssVar, path, light: asCss ? toCssValue(light) : light, dark: asCss ? toCssValue(dark) : dark })
     } else {
-      walkRaw(child as Record<string, unknown>, category, [...trail, key], out)
+      walkRaw(child as Record<string, unknown>, category, [...trail, key], out, asCss)
     }
   }
 }

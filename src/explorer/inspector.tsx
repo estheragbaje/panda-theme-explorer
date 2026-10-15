@@ -38,7 +38,7 @@ export function Inspector({ theme, isDark, onClose }: { theme: ThemeId; isDark: 
   const [query, setQuery] = useState('')
   const [onlyDiff, setOnlyDiff] = useState(false)
   const rows = useMemo(() => themeTokens(theme), [theme])
-  const changed = useMemo(() => differsFromBaseline(theme), [theme])
+  const changed = useMemo(() => differsFromBaseline(theme, isDark ? 'dark' : 'light'), [theme, isDark])
   const label = THEMES.find((t) => t.id === theme)?.label ?? theme
   const isBaseline = theme === DEFAULT_THEME
 
