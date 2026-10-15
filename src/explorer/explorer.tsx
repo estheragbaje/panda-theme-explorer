@@ -1,11 +1,10 @@
 'use client'
 
-import { Clipboard } from '@ark-ui/react/clipboard'
 import { useHotkeys } from '@ark-ui/react/hotkeys'
 import { Portal } from '@ark-ui/react/portal'
 import { useSplitter } from '@ark-ui/react/splitter'
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
-import { LuCheck, LuCopy, LuGithub, LuPanelRightClose, LuPanelRightOpen } from 'react-icons/lu'
+import { LuGithub, LuPanelRightClose, LuPanelRightOpen } from 'react-icons/lu'
 import { css, cx } from '../../styled-system/css'
 import { button } from '../../styled-system/recipes'
 import { THEMES, type ThemeId } from '../../theme/registry'
@@ -13,14 +12,14 @@ import { TripPage } from '../trip/trip-page'
 import * as Drawer from '../ui/drawer'
 import * as RadioGroup from '../ui/radio-group'
 import * as Splitter from '../ui/splitter'
-import { Toaster, toaster } from '../ui/toast'
+import { Toaster } from '../ui/toast'
 import { Inspector } from './inspector'
 import { toggleMode, useIsDark } from './mode'
 import { ModeSwitch } from './mode-switch'
 import { PandaLogo } from './panda-logo'
 import { setTheme, useTheme } from './theme-choice'
 import { ThemeRail } from './theme-rail'
-import { themeSource } from './theme-tokens'
+import { ThemeExport } from './theme-export'
 
 // The trip page doesn't depend on layout state, so dragging a panel doesn't re-render it.
 const Canvas = memo(TripPage)
@@ -76,9 +75,8 @@ function readLayout(): Layout {
 // inherits the chosen theme from <html>, which the head script sets before first paint.
 const CHROME = { 'data-panda-theme': 'everyday' } as const
 
-// Chrome actions in Panda Studio's style: compact 36px buttons, a black primary and
-// white outlined secondaries with a hairline border, each led by an icon.
-const primaryAction = cx(button({ variant: 'solid', size: 'md' }), css({ colorPalette: 'neutral', px: '3.5', shadow: 'none' }))
+// Chrome actions in Panda Studio's style: compact 36px buttons, a black primary (the
+// export split button) and white outlined secondaries with a hairline border.
 const secondaryAction = (pressed: boolean) =>
   cx(button({ variant: 'outline', size: 'md' }), css({ px: '3.5', borderColor: 'border.default', bg: pressed ? 'bg.subtle' : 'bg.surface', _hover: { bg: 'bg.subtle' } }))
 
@@ -172,18 +170,7 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
           {/* Icon-only on phones, so the header fits the widest theme faces (Pixel). */}
           <span className={css({ hideBelow: 'sm' })}>Inspector</span>
         </button>
-        {/* Every copy shares one toast id: a new copy replaces the toast instead of stacking another. */}
-        <Clipboard.Root
-          value={themeSource(theme)}
-          onStatusChange={(d) => d.copied && toaster.create({ id: 'copied', title: 'Theme copied', description: `${theme}.ts source, ready to paste` })}
-        >
-          <Clipboard.Trigger className={primaryAction} aria-label="Copy theme source">
-            <Clipboard.Indicator copied={<LuCheck />}>
-              <LuCopy />
-            </Clipboard.Indicator>
-            <span className={css({ hideBelow: 'md' })}>Copy theme</span>
-          </Clipboard.Trigger>
-        </Clipboard.Root>
+        <ThemeExport theme={theme} />
         <ModeSwitch />
       </div>
     </header>
@@ -538,7 +525,7 @@ export function Explorer() {
           </Drawer.Positioner>
         </Portal>
       </Drawer.Root>
-      <Toaster />
+      <Toaster theme="everyday" />
     </div>
   )
 }

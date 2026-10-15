@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prepare": "panda codegen",
-    "dev": "next dev",
-    "build": "next build",
+    "prepare": "panda codegen --spec=public/design-system.json",
+    "dev": "panda codegen --spec=public/design-system.json && next dev",
+    "build": "panda codegen --spec=public/design-system.json && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",

@@ -1,4 +1,4 @@
-import { datePickerAnatomy, drawerAnatomy, selectAnatomy, toastAnatomy, tooltipAnatomy } from '@ark-ui/react/anatomy'
+import { datePickerAnatomy, drawerAnatomy, menuAnatomy, selectAnatomy, toastAnatomy, tooltipAnatomy } from '@ark-ui/react/anatomy'
 import { defineSlotRecipe } from '@pandacss/dev'
 import { colorTransition, controlSurface, disabled, focusRing, listItem, overlayContent } from './shared'
 
@@ -235,5 +235,36 @@ export const toast = defineSlotRecipe({
     description: { fontSize: 'sm', color: 'fg.muted' },
     actionTrigger: { ...iconTrigger, w: 'auto', px: '2', mt: '1', color: 'accent.text' },
     closeTrigger: { ...iconTrigger, position: 'absolute', top: '2', insetEnd: '2' },
+  },
+})
+
+// Ark Menu: action lists such as the explorer's export options. Items carry an icon, a
+// label and an optional muted hint; groups get a small caption.
+export const menu = defineSlotRecipe({
+  className: 'menu',
+  slots: menuAnatomy.keys(),
+  base: {
+    content: {
+      ...overlayContent,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.5',
+      minW: '64',
+      p: '1.5',
+      outline: 'none',
+    },
+    item: {
+      ...listItem,
+      gap: '2.5',
+      py: '2',
+      fontSize: 'sm',
+      color: 'fg.default',
+      '& svg': { w: '4', h: '4', flexShrink: '0', color: 'fg.muted' },
+    },
+    itemText: { flex: '1', minW: '0' },
+    itemGroup: { display: 'flex', flexDirection: 'column', gap: '0.5' },
+    itemGroupLabel: { px: '2.5', pt: '1.5', pb: '1', textStyle: 'caption', fontWeight: 'medium', color: 'fg.subtle' },
+    separator: { h: '[1px]', my: '1', mx: '1', bg: 'border.default', borderWidth: '0' },
+    indicator: { display: 'inline-flex', transitionProperty: 'rotate', transitionDuration: 'fast', _open: { rotate: '[180deg]' } },
   },
 })

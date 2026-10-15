@@ -18,12 +18,14 @@ const CloseTrigger = withContext(Toast.CloseTrigger, 'closeTrigger')
 
 export const toaster = createToaster({ placement: 'bottom-end', overlap: true, gap: 16 })
 
-export function Toaster() {
+// Toasts render in a portal, outside any theme scope, so they take the page's theme.
+// Pass `theme` to pin them to one (the explorer pins its chrome toasts to Everyday).
+export function Toaster({ theme }: { theme?: string }) {
   return (
     <Portal>
       <ArkToaster toaster={toaster}>
         {(item) => (
-          <Root key={item.id}>
+          <Root key={item.id} data-panda-theme={theme}>
             {item.title && <Title>{item.title}</Title>}
             {item.description && <Description>{item.description}</Description>}
             {item.action && <ActionTrigger>{item.action.label}</ActionTrigger>}
