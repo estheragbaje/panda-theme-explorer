@@ -2,7 +2,7 @@
 // details are real; stay names, prices and people are invented for the demo.
 
 // Photos from Unsplash (free licence, no Unsplash+ images). The id is the CDN path; the
-// credit is shown in the page footer, as Unsplash's guidelines ask.
+// credit records each photographer.
 export type Photo = { id: string; alt: string; credit: { name: string; username: string } }
 
 const photo = (id: string, alt: string, name: string, username: string): Photo => ({ id: `photo-${id}`, alt, credit: { name, username } })

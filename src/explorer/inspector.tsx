@@ -53,9 +53,10 @@ export function Inspector({ theme, isDark, onClose }: { theme: ThemeId; isDark: 
     const text = raw ? (isDark ? row.dark : row.light) : `var(${row.cssVar})`
     try {
       await navigator.clipboard.writeText(text)
-      toaster.create({ title: 'Copied', description: text })
+      // Shares the 'copied' toast with Copy theme, so a new copy replaces it instead of stacking.
+      toaster.create({ id: 'copied', title: 'Copied', description: text })
     } catch {
-      toaster.create({ title: 'Copy failed', description: 'Your browser blocked clipboard access.' })
+      toaster.create({ id: 'copied', title: 'Copy failed', description: 'Your browser blocked clipboard access.' })
     }
   }
 

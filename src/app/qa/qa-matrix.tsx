@@ -713,7 +713,7 @@ export function QaMatrix() {
           </Drawer.Root>
           <Button
             variant="tonal"
-            onClick={() => toaster.create({ title: 'Copied', description: 'var(--colors-accent-solid)' })}
+            onClick={() => toaster.create({ id: 'qa-copied', title: 'Copied', description: 'var(--colors-accent-solid)' })}
           >
             Show toast
           </Button>

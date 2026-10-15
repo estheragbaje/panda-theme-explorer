@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { css } from '../../styled-system/css'
 import * as Toc from '../ui/toc'
-import { PhotoCredits } from './credits'
 import { SECTIONS, type CurrencyCode } from './data'
 import { BudgetSection } from './sections/budget'
 import { ItinerarySection } from './sections/itinerary'
@@ -125,7 +124,6 @@ export function TripPage() {
             <BudgetSection />
             <PackingSection />
             <PreferencesSection />
-            <PhotoCredits />
           </Toc.Content>
         </Toc.Root>
       </div>

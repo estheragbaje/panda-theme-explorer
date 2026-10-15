@@ -2,11 +2,11 @@
 // A theme appears here only once its file exists in ./themes.
 export const THEMES = [
   { id: 'everyday', label: 'Everyday', note: 'normal', monogram: 'Ev' },
-  { id: 'sketch', label: 'Sketch', note: 'handwritten', monogram: 'Sk' },
   { id: 'riso', label: 'Riso', note: 'print', monogram: 'Ri' },
-  { id: 'blueprint', label: 'Blueprint', note: 'technical', monogram: 'Bp' },
   { id: 'pixel', label: 'Pixel', note: 'handheld', monogram: 'Px' },
   { id: 'panda', label: 'Panda', note: 'soft, black and white', monogram: 'Pa' },
+  { id: 'blueprint', label: 'Blueprint', note: 'technical', monogram: 'Bp' },
+  { id: 'sketch', label: 'Sketch', note: 'handwritten', monogram: 'Sk' },
 ] as const
 
 export type ThemeId = (typeof THEMES)[number]['id']
