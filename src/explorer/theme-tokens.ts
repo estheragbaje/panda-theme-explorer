@@ -1,6 +1,6 @@
 import { token } from '../../styled-system/tokens'
 import type { Token } from '../../styled-system/types/tokens'
-import { DEFAULT_THEME, type ThemeId } from '../../theme/registry'
+import { DEFAULT_THEME, THEMES, type ThemeId } from '../../theme/registry'
 import { themes } from '../../theme/themes'
 
 // Reads a theme's contract tokens straight from its definition, for the inspector.
@@ -100,10 +100,23 @@ export function differsFromBaseline(id: ThemeId, mode: 'light' | 'dark'): Set<st
   return changed
 }
 
-// The theme as source a developer can paste into theme/themes/<id>.ts.
+// The theme as a standalone file for any Panda v2 project: Panda's own defineThemeVariant,
+// not this repo's contract helper, which only exists here.
 export function themeSource(id: ThemeId): string {
   const body = JSON.stringify(themes[id], null, 2).replace(/"([a-zA-Z_$][\w$]*)":/g, '$1:')
-  return `import { defineTheme } from '../contract'\n\nexport const ${id} = defineTheme(${body})\n`
+  const label = THEMES.find((t) => t.id === id)?.label ?? id
+  return [
+    `// ${label}, from Panda Themes. Register it in panda.config.ts:`,
+    `//   themes: { ${id} },`,
+    `//   staticCss: { themes: ['${id}'] },`,
+    `// then add data-panda-theme="${id}" to the element it should style, and the dark class for`,
+    `// dark mode (Panda's _dark condition). Fonts are read from --font-* variables your project`,
+    `// defines, for example with next/font.`,
+    `import { defineThemeVariant } from '@pandacss/dev'`,
+    ``,
+    `export const ${id} = defineThemeVariant(${body})`,
+    ``,
+  ].join('\n')
 }
 
 // "{colors.bg.surface} solid" -> "var(--colors-bg-surface) solid"
