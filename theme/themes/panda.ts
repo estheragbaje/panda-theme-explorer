@@ -96,6 +96,7 @@ export const panda = defineTheme({
       body: { value: 'var(--font-m-plus-rounded), ui-rounded, system-ui, sans-serif' },
       mono: { value: 'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace' },
       numeric: { value: 'var(--font-m-plus-rounded), ui-rounded, system-ui, sans-serif' },
+      badge: { value: '{fonts.body}' },
     },
     fontSizes: { body: { value: '0.9375rem' } },
     fontWeights: { display: { value: '800' }, button: { value: '500' } },

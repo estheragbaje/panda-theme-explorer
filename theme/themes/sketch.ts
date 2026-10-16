@@ -87,6 +87,7 @@ export const sketch = defineTheme({
       body: { value: 'var(--font-patrick-hand), "Comic Sans MS", cursive' },
       mono: { value: 'var(--font-courier-prime), "Courier New", monospace' },
       numeric: { value: 'var(--font-courier-prime), "Courier New", monospace' },
+      badge: { value: '{fonts.body}' },
     },
     // Patrick Hand has a small x-height, so body text is set a size up.
     fontSizes: { body: { value: '1.0625rem' } },

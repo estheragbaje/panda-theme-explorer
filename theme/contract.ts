@@ -23,7 +23,8 @@ export const defineTheme = defineThemeContract({
       highlight: { bg: {}, fg: {} },
       focusRing: {},
     },
-    fonts: { display: {}, body: {}, mono: {}, numeric: {} },
+    // badge: the face for badges, which sit beside other content and must stay compact.
+    fonts: { display: {}, body: {}, mono: {}, numeric: {}, badge: {} },
     fontSizes: { body: {} },
     fontWeights: { display: {}, button: {} },
     letterSpacings: { display: {}, button: {} },

@@ -68,6 +68,7 @@ export const riso = defineTheme({
       body: { value: 'var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif' },
       mono: { value: 'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace' },
       numeric: { value: 'var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif' },
+      badge: { value: '{fonts.body}' },
     },
     fontSizes: { body: { value: '0.9375rem' } },
     fontWeights: { display: { value: '700' }, button: { value: '600' } },

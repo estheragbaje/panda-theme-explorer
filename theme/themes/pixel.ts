@@ -73,6 +73,8 @@ export const pixel = defineTheme({
       body: { value: 'var(--font-martian-mono), ui-monospace, SFMono-Regular, Menlo, monospace' },
       mono: { value: 'var(--font-martian-mono), ui-monospace, SFMono-Regular, Menlo, monospace' },
       numeric: { value: 'var(--font-pixelify), ui-monospace, monospace' },
+      // Martian Mono is too wide for a badge beside a price; the pixel face is compact.
+      badge: { value: '{fonts.display}' },
     },
     // Martian Mono is wide, so body text is set small.
     fontSizes: { body: { value: '0.8125rem' } },

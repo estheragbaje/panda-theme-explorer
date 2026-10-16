@@ -197,7 +197,9 @@ export const slider = defineSlotRecipe({
     label: fieldLabel,
     valueText: { textStyle: 'numeric', fontSize: 'sm', color: 'fg.muted' },
     control: { position: 'relative', display: 'flex', alignItems: 'center', h: '5' },
-    track: { flex: '1', h: '1.5', rounded: 'full', bg: 'border.strong', overflow: 'hidden' },
+    // A tinted track under a solid range, so the selected span reads in every theme (Panda's
+    // border.strong and accent.solid are the same black).
+    track: { flex: '1', h: '1.5', rounded: 'full', bg: 'colorPalette.subtle', overflow: 'hidden' },
     range: { h: 'full', bg: 'colorPalette.solid' },
     thumb: {
       w: '4.5',
@@ -256,12 +258,14 @@ export const ratingGroup = defineSlotRecipe({
     root: { colorPalette: 'warning', display: 'flex', flexDirection: 'column', gap: '1.5' },
     label: fieldLabel,
     control: { display: 'flex', gap: '0.5' },
+    // Empty stars are outlines and filled stars are solid, so the rating reads by shape
+    // too: in some themes border.strong and warning.solid are close (Panda's ink is black).
     item: {
       color: 'border.strong',
       rounded: 'control',
       cursor: 'pointer',
-      '& svg': { w: '4', h: '4', fill: 'currentColor' },
-      _highlighted: { color: 'colorPalette.solid' },
+      '& svg': { w: '4', h: '4', fill: 'transparent' },
+      _highlighted: { color: 'colorPalette.solid', '& svg': { fill: 'currentColor' } },
       _focusVisible: focusRing,
       _readOnly: { cursor: 'default' },
     },

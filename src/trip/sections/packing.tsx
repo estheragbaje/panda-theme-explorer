@@ -61,7 +61,8 @@ export function PackingSection() {
                   ))
                 }
               </TagsInput.Context>
-              <TagsInput.Input placeholder="Add an item and press Enter" />
+              {/* The hint only while empty: beside tags it has no room and gets cut off. */}
+              <TagsInput.Input placeholder={extras.length === 0 ? 'Add an item and press Enter' : undefined} />
             </TagsInput.Control>
             <TagsInput.HiddenInput />
           </TagsInput.Root>

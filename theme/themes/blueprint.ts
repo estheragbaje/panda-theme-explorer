@@ -69,6 +69,7 @@ export const blueprint = defineTheme({
       body: { value: 'var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif' },
       mono: { value: 'var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace' },
       numeric: { value: 'var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace' },
+      badge: { value: '{fonts.body}' },
     },
     fontSizes: { body: { value: '0.9375rem' } },
     fontWeights: { display: { value: '500' }, button: { value: '500' } },

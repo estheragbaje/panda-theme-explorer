@@ -11,6 +11,7 @@ export const badge = defineRecipe({
     h: '5',
     rounded: 'badge',
     textStyle: 'caption',
+    fontFamily: 'badge',
     fontWeight: 'medium',
     whiteSpace: 'nowrap',
     '& svg': { w: '3', h: '3' },

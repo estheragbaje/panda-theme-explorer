@@ -65,6 +65,7 @@ export const everyday = defineTheme({
       body: { value: 'var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif' },
       mono: { value: 'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace' },
       numeric: { value: 'var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif' },
+      badge: { value: '{fonts.body}' },
     },
     fontSizes: { body: { value: '0.9375rem' } },
     fontWeights: { display: { value: '600' }, button: { value: '500' } },

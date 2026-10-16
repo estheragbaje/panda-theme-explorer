@@ -48,10 +48,15 @@ function StayCard({ stay, saved, onSavedChange }: { stay: Stay; saved: boolean; 
           {/* Read-only rating: decorative stars plus text. Ark's RatingGroup is an input
               (radio group), so it's used for the minimum-rating filter instead. */}
           <p className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm' })}>
-            <span aria-hidden className={css({ display: 'flex', gap: '0.5', '& svg': { w: '4', h: '4', fill: 'currentColor' } })}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <LuStar key={star} className={css({ color: star <= Math.round(stay.rating) ? 'warning.solid' : 'border.strong' })} />
-              ))}
+            <span aria-hidden className={css({ display: 'flex', gap: '0.5', '& svg': { w: '4', h: '4' } })}>
+              {/* Filled stars are solid, the rest outlines, as in the rating filter. */}
+              {[1, 2, 3, 4, 5].map((star) =>
+                star <= Math.round(stay.rating) ? (
+                  <LuStar key={star} className={css({ color: 'warning.solid', fill: 'currentColor' })} />
+                ) : (
+                  <LuStar key={star} className={css({ color: 'border.strong', fill: 'transparent' })} />
+                ),
+              )}
             </span>
             <span className={css({ textStyle: 'numeric' })}>
               {stay.rating.toFixed(1)}
@@ -66,7 +71,12 @@ function StayCard({ stay, saved, onSavedChange }: { stay: Stay; saved: boolean; 
               </span>
               <span className={css({ fontSize: 'sm', color: 'fg.muted' })}> / night</span>
             </p>
-            {stay.freeCancellation && <Badge colorPalette="success">Free cancellation</Badge>}
+            {/* Pushed to the end, so it stays bottom right even when a narrow card wraps it. */}
+            {stay.freeCancellation && (
+              <Badge colorPalette="success" className={css({ ms: 'auto' })}>
+                Free cancellation
+              </Badge>
+            )}
           </div>
         </Card.Body>
       </div>

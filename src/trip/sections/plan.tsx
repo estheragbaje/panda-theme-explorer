@@ -94,87 +94,100 @@ export function PlanSection() {
     <section id="plan" aria-labelledby="trip-title" className={css({ scrollMarginTop: '16' })}>
       <Card.Root>
         {/* Clips the photo to the card's corners, inside the card so decorations drawn
-            outside it (Panda's ears) aren't clipped. */}
-        <div className={css({ display: 'flex', flexDirection: 'column', rounded: 'inherit', overflow: 'hidden' })}>
+            outside it (Panda's ears) aren't clipped. Wide previews set the photo beside
+            the plan; narrow ones stack it on top. */}
+        <div
+          className={css({
+            display: 'grid',
+            gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/4xl': '[minmax(0, 1fr) minmax(0, 1fr)]' },
+            rounded: 'inherit',
+            overflow: 'hidden',
+          })}
+        >
           <Photo
             photo={TRIP.photo}
             preload
-            sizes="(min-width: 80rem) 60rem, 100vw"
-            className={css({ aspectRatio: { base: 'wide', '@preview/3xl': '[3 / 1]' } })}
+            sizes="(min-width: 80rem) 30rem, 100vw"
+            className={css({ aspectRatio: { base: 'wide', '@preview/4xl': 'auto' }, minH: { '@preview/4xl': '[26rem]' } })}
           />
-          <Card.Body className={css({ gap: '6', pt: '6' })}>
-            <div className={css({ display: 'grid', gap: '2' })}>
-              <p className={css({ textStyle: 'caption', color: 'fg.muted', textTransform: 'uppercase', letterSpacing: 'wider' })}>
-                Fri 13 to Sun 15 November 2026
-              </p>
-              <h1 id="trip-title" className={css({ textStyle: 'display', fontSize: { base: '3xl', '@preview/3xl': '4xl' } })}>
-                {TRIP.title}
-              </h1>
-              <p className={css({ color: 'fg.muted', maxW: 'prose' })}>Three days and two nights in the city by the bay. Pick your dates and who&apos;s coming.</p>
-            </div>
-
-            <div
-              className={css({
-                display: 'grid',
-                gap: '5',
-                alignItems: 'end',
-                gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/3xl': '2fr 1fr', '@preview/5xl': '2fr 1fr 1.4fr' },
-              })}
-            >
-              <TripDates />
-              <NumberInput.Root value={String(travellers)} min={1} max={COMPANIONS.length} onValueChange={(d) => setTravellers(d.valueAsNumber || 1)}>
-                <NumberInput.Label>Travellers</NumberInput.Label>
-                <NumberInput.Control>
-                  <NumberInput.DecrementTrigger aria-label="Fewer travellers">
-                    <LuMinus />
-                  </NumberInput.DecrementTrigger>
-                  <NumberInput.Input />
-                  <NumberInput.IncrementTrigger aria-label="More travellers">
-                    <LuPlus />
-                  </NumberInput.IncrementTrigger>
-                </NumberInput.Control>
-              </NumberInput.Root>
-
-              <div className={css({ display: 'grid', gap: '1.5' })}>
-                <span className={css({ textStyle: 'label' })} id="whos-coming">
-                  Who&apos;s coming
-                </span>
-                <ul aria-labelledby="whos-coming" className={css({ display: 'flex', alignItems: 'center', h: 'control.md', '& > li:not(:first-child)': { ms: '-1' } })}>
-                  {coming.map((person) => (
-                    <li key={person.initials}>
-                      <Tooltip.Root openDelay={200} closeDelay={0}>
-                        <Tooltip.Trigger asChild>
-                          <button type="button" aria-label={person.name} className={css({ rounded: 'full', _focusVisible: { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '0.5' } })}>
-                            <Avatar.Root>
-                              <Avatar.Fallback>{person.initials}</Avatar.Fallback>
-                            </Avatar.Root>
-                          </button>
-                        </Tooltip.Trigger>
-                        <Portal>
-                          <Tooltip.Positioner>
-                            <Tooltip.Content>
-                              <Tooltip.Arrow>
-                                <Tooltip.ArrowTip />
-                              </Tooltip.Arrow>
-                              {person.name}
-                            </Tooltip.Content>
-                          </Tooltip.Positioner>
-                        </Portal>
-                      </Tooltip.Root>
-                    </li>
-                  ))}
-                </ul>
+          <div className={css({ display: 'flex', flexDirection: 'column', minW: '0' })}>
+            <Card.Body className={css({ gap: '6', pt: '6', flex: '1', justifyContent: { '@preview/4xl': 'center' } })}>
+              <div className={css({ display: 'grid', gap: '2' })}>
+                <p className={css({ textStyle: 'caption', color: 'fg.muted', textTransform: 'uppercase', letterSpacing: 'wider' })}>
+                  Fri 13 to Sun 15 November 2026
+                </p>
+                <h1 id="trip-title" className={css({ textStyle: 'display', fontSize: { base: '3xl', '@preview/3xl': '4xl' } })}>
+                  {TRIP.title}
+                </h1>
+                <p className={css({ color: 'fg.muted', maxW: 'prose' })}>Three days and two nights in the city by the bay. Pick your dates and who&apos;s coming.</p>
               </div>
-            </div>
-          </Card.Body>
-          <Card.Footer className={css({ justifyContent: 'space-between', flexWrap: 'wrap', alignItems: 'center' })}>
-            <p className={css({ fontSize: 'sm', color: 'fg.muted' })} aria-live="polite">
-              {travellers} {travellers === 1 ? 'traveller' : 'travellers'}, {TRIP.nights} nights
-            </p>
-            <a href="#stays" className={button()}>
-              Find stays
-            </a>
-          </Card.Footer>
+
+              {/* Dates take the full row. Travellers is a fixed width beside who's coming, so
+                  adding or removing an avatar never moves the input. */}
+              <div
+                className={css({
+                  display: 'grid',
+                  gap: '5',
+                  alignItems: 'end',
+                  gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/xl': '[10rem minmax(0, 1fr)]' },
+                  '& > :first-child': { gridColumn: '1 / -1' },
+                })}
+              >
+                <TripDates />
+                <NumberInput.Root value={String(travellers)} min={1} max={COMPANIONS.length} onValueChange={(d) => setTravellers(d.valueAsNumber || 1)}>
+                  <NumberInput.Label>Travellers</NumberInput.Label>
+                  <NumberInput.Control>
+                    <NumberInput.DecrementTrigger aria-label="Fewer travellers">
+                      <LuMinus />
+                    </NumberInput.DecrementTrigger>
+                    <NumberInput.Input />
+                    <NumberInput.IncrementTrigger aria-label="More travellers">
+                      <LuPlus />
+                    </NumberInput.IncrementTrigger>
+                  </NumberInput.Control>
+                </NumberInput.Root>
+
+                <div className={css({ display: 'grid', gap: '1.5' })}>
+                  <span className={css({ textStyle: 'label' })} id="whos-coming">
+                    Who&apos;s coming
+                  </span>
+                  <ul aria-labelledby="whos-coming" className={css({ display: 'flex', alignItems: 'center', h: 'control.md', '& > li:not(:first-child)': { ms: '-1' } })}>
+                    {coming.map((person) => (
+                      <li key={person.initials}>
+                        <Tooltip.Root openDelay={200} closeDelay={0}>
+                          <Tooltip.Trigger asChild>
+                            <button type="button" aria-label={person.name} className={css({ rounded: 'full', _focusVisible: { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '0.5' } })}>
+                              <Avatar.Root>
+                                <Avatar.Fallback>{person.initials}</Avatar.Fallback>
+                              </Avatar.Root>
+                            </button>
+                          </Tooltip.Trigger>
+                          <Portal>
+                            <Tooltip.Positioner>
+                              <Tooltip.Content>
+                                <Tooltip.Arrow>
+                                  <Tooltip.ArrowTip />
+                                </Tooltip.Arrow>
+                                {person.name}
+                              </Tooltip.Content>
+                            </Tooltip.Positioner>
+                          </Portal>
+                        </Tooltip.Root>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </Card.Body>
+            <Card.Footer className={css({ justifyContent: 'space-between', flexWrap: 'wrap', alignItems: 'center' })}>
+              <p className={css({ fontSize: 'sm', color: 'fg.muted' })} aria-live="polite">
+                {travellers} {travellers === 1 ? 'traveller' : 'travellers'}, {TRIP.nights} nights
+              </p>
+              <a href="#stays" className={button()}>
+                Find stays
+              </a>
+            </Card.Footer>
+          </div>
         </div>
       </Card.Root>
     </section>
