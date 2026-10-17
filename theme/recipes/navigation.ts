@@ -102,6 +102,16 @@ export const splitter = defineSlotRecipe({
         minWidth: 'var(--panel-collapsed-size) !important',
         maxWidth: 'var(--panel-collapsed-size) !important',
       },
+      // Before the app has measured its width (data-premeasure on the root), Ark's
+      // percentages are for a guessed width. A panel with --premeasure-size is pinned to
+      // it (pixels from the stored layout), and the rest share what's left, so the first
+      // paint already matches the measured layout.
+      '[data-premeasure] > &': { flex: '1 1 0 !important', minWidth: '0 !important', maxWidth: 'none !important' },
+      '[data-premeasure] > &[data-premeasure-size]': {
+        flex: '0 0 var(--premeasure-size) !important',
+        minWidth: 'var(--premeasure-size) !important',
+        maxWidth: 'var(--premeasure-size) !important',
+      },
       // Set on the root while a toggle (not a drag) opens or closes a panel. Ark's inline
       // min/max widths (and the collapsed pin above) are released so the panel eases all
       // the way instead of snapping to its minimum; they apply again once it has arrived.

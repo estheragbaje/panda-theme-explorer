@@ -8,7 +8,9 @@ import { slider } from '../../styled-system/recipes'
 
 const { withProvider, withContext } = createSlotRecipeContext(slider)
 
-export const Root = withProvider(Slider.Root, 'root')
+// The thumb's size (the recipe's 4.5 = 18px in every theme), so Ark can place the thumbs
+// on the server instead of hiding them until it has measured one.
+export const Root = withProvider(Slider.Root, 'root', { defaultProps: { thumbSize: { width: 18, height: 18 } } })
 export const Label = withContext(Slider.Label, 'label')
 export const Thumb = withContext(Slider.Thumb, 'thumb')
 export const ValueText = withContext(Slider.ValueText, 'valueText')

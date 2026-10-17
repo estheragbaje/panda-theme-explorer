@@ -7,7 +7,7 @@ import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyn
 import { LuPanelRightClose, LuPanelRightOpen } from 'react-icons/lu'
 import { css, cx } from '../../styled-system/css'
 import { button } from '../../styled-system/recipes'
-import { THEMES, type ThemeId } from '../../theme/registry'
+import { LAYOUT_STORAGE_KEY, PANEL_SIZES, THEMES, type ThemeId } from '../../theme/registry'
 import { TripPage } from '../trip/trip-page'
 import * as Drawer from '../ui/drawer'
 import * as RadioGroup from '../ui/radio-group'
@@ -27,16 +27,15 @@ const Canvas = memo(TripPage)
 // Panel sizes are kept in pixels and converted to the splitter's percentages for the
 // current width, so the collapsed rail stays 72px whatever the window size.
 type Layout = { railPx: number; railCollapsed: boolean; inspectorPx: number; inspectorOpen: boolean }
-const DEFAULT_LAYOUT: Layout = { railPx: 248, railCollapsed: false, inspectorPx: 320, inspectorOpen: false }
-const RAIL_COLLAPSED = 80
-const RAIL_MIN = 200
-const RAIL_MAX = 320
-const INSPECTOR_MIN = 260
-const INSPECTOR_MAX = 440
+const DEFAULT_LAYOUT: Layout = { railPx: PANEL_SIZES.rail.default, railCollapsed: false, inspectorPx: PANEL_SIZES.inspector.default, inspectorOpen: false }
+const RAIL_COLLAPSED = PANEL_SIZES.rail.collapsed
+const RAIL_MIN = PANEL_SIZES.rail.min
+const RAIL_MAX = PANEL_SIZES.rail.max
+const INSPECTOR_MIN = PANEL_SIZES.inspector.min
+const INSPECTOR_MAX = PANEL_SIZES.inspector.max
 const CANVAS_MIN = 320
 // Panel open/close animation; matches the splitter recipe's [data-animating] transition.
 const PANEL_MS = 240
-const LAYOUT_KEY = 'pt-layout'
 const SSR_WIDTH = 1280 // assumed until the real width is measured after hydration
 
 const NARROW_QUERY = '(max-width: 47.9975rem)'
@@ -51,7 +50,7 @@ const toPct = (px: number, width: number) => (px / Math.max(width, 1)) * 100
 
 // The resize handles are 16px gutters (the inspector's only while it's open). Ark shares
 // out what's left after them, so pixel sizes convert against that space, not the width.
-const GUTTER = 16
+const GUTTER = PANEL_SIZES.gutter
 const panelSpace = (width: number, inspectorOpen: boolean) => width - GUTTER - (inspectorOpen ? GUTTER : 0)
 
 // Splitter percentages for a layout at a given width.
@@ -64,7 +63,7 @@ function sizesFor(l: Layout, width: number) {
 
 function readLayout(): Layout {
   try {
-    const stored = JSON.parse(localStorage.getItem(LAYOUT_KEY) ?? 'null')
+    const stored = JSON.parse(localStorage.getItem(LAYOUT_STORAGE_KEY) ?? 'null')
     if (stored && typeof stored.railPx === 'number') return { ...DEFAULT_LAYOUT, ...stored }
   } catch {}
   return DEFAULT_LAYOUT
@@ -80,6 +79,17 @@ const CHROME = { 'data-panda-theme': 'everyday' } as const
 const secondaryAction = (pressed: boolean) =>
   cx(button({ variant: 'outline', size: 'md' }), css({ px: '3.5', borderColor: 'border.default', bg: pressed ? 'bg.subtle' : 'bg.surface', _hover: { bg: 'bg.subtle' } }))
 
+// A reload with the inspector stored open: until the explorer has measured and restored
+// the layout, the head script's data-layout-inspector shows the button pressed, with its
+// close icon, so the first paint matches.
+const inspectorButtonPremeasure = css({
+  '[data-layout-inspector=open] [data-premeasure] &': {
+    bg: 'bg.subtle',
+    '& [data-shows=open]': { display: 'block' },
+    '& [data-shows=closed]': { display: 'none' },
+  },
+})
+
 // Resize handles are the gutters between the floating panels: invisible until hovered,
 // focused or dragged, when a short grip appears.
 const gutter = css({
@@ -94,6 +104,18 @@ const gutter = css({
 
 // Floating panels: rounded cards on the backdrop, separated by the gutters.
 const panelCard = css({ h: 'full', bg: 'bg.surface', borderWidth: 'card', borderColor: 'border.default', rounded: '[1.25rem]', overflow: 'hidden' })
+
+// Before the explorer has measured the window, the rail and inspector take their stored
+// pixel sizes from the head script's variables (see the splitter recipe), so a reload
+// paints the panels where they'll stay.
+const railPremeasure = { '--premeasure-size': `var(--layout-rail, ${PANEL_SIZES.rail.default}px)` }
+const inspectorPremeasure = { '--premeasure-size': 'var(--layout-inspector, 0px)' } as CSSProperties
+// The inspector's gutter is hidden while it's closed; a stored open inspector needs it
+// from the first paint too.
+const inspectorGutter = cx(
+  gutter,
+  css({ _disabled: { display: 'none' }, '[data-layout-inspector=open] [data-premeasure] > &': { md: { display: 'block !important' } } }),
+)
 
 // External links open in a new tab, announced to screen readers.
 const newTab = { target: '_blank', rel: 'noopener noreferrer' } as const
@@ -124,9 +146,11 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
           aria-controls={inspectorOpen ? 'inspector' : undefined}
           title="Inspector (])"
           aria-label="Inspector"
-          className={secondaryAction(inspectorOpen)}
+          className={cx(secondaryAction(inspectorOpen), inspectorButtonPremeasure)}
         >
-          {inspectorOpen ? <LuPanelRightClose /> : <LuPanelRightOpen />}
+          {/* Both icons are rendered, so first-paint CSS can show the stored state's. */}
+          <LuPanelRightClose data-shows="open" className={css({ display: inspectorOpen ? 'block' : 'none' })} />
+          <LuPanelRightOpen data-shows="closed" className={css({ display: inspectorOpen ? 'none' : 'block' })} />
           {/* Icon-only on phones, so the header fits the widest theme faces (Pixel). */}
           <span className={css({ hideBelow: 'sm' })}>Inspector</span>
         </button>
@@ -355,7 +379,7 @@ export function Explorer() {
   useEffect(() => {
     if (!restored.current) return
     try {
-      localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout))
+      localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(layout))
     } catch {}
   }, [layout])
 
@@ -380,14 +404,18 @@ export function Explorer() {
   return (
     // One screen: only the panels scroll, never the document. clip, not hidden, so focus or
     // scrollIntoView can't scroll the shell itself and shift every panel.
-    <div className={css({ position: 'relative', isolation: 'isolate', display: 'flex', flexDirection: 'column', h: '[100dvh]', overflow: 'clip' })}>
+    <div
+      data-premeasure={measured ? undefined : ''}
+      className={css({ position: 'relative', isolation: 'isolate', display: 'flex', flexDirection: 'column', h: '[100dvh]', overflow: 'clip' })}
+    >
       {/* The backdrop the panels float on, in the chrome's colors. */}
       <div aria-hidden {...CHROME} className={css({ position: 'absolute', inset: '0', zIndex: 'behind', bg: 'bg.surface' })} />
       <Header theme={theme} inspectorOpen={narrow ? drawerOpen : layout.inspectorOpen} onToggleInspector={toggleInspector} />
       <ThemeStrip theme={theme} />
-      {/* The gutters sit outside the splitter, so its measured width is the panels' width. */}
+      {/* The gutters sit outside the splitter, so its measured width is the panels' width.
+          md: '4' (16px) is PANEL_SIZES.inset, which the head script's first-paint sizes use. */}
       <div className={css({ display: 'flex', flex: '1', minH: '0', px: { base: '0', md: '4' } })}>
-      <Splitter.RootProvider ref={rootRef} value={splitter} data-animating={animating ? '' : undefined}
+      <Splitter.RootProvider ref={rootRef} value={splitter} data-animating={animating ? '' : undefined} data-premeasure={measured ? undefined : ''}
         // Ark makes the root overflow: hidden, which focus or scrollIntoView could scroll,
         // shifting every panel. Visible: it isn't a scroll container, and the preview's
         // shadow isn't cut off; each panel still clips its own content.
@@ -397,7 +425,8 @@ export function Explorer() {
           id="rail"
           {...CHROME}
           data-collapsed={layout.railCollapsed ? '' : undefined}
-          style={{ '--panel-collapsed-size': `${RAIL_COLLAPSED}px` } as CSSProperties}
+          data-premeasure-size=""
+          style={{ '--panel-collapsed-size': `${RAIL_COLLAPSED}px`, ...railPremeasure } as CSSProperties}
           className={css({ hideBelow: 'md' })}
         >
           <ThemeRail theme={theme} onThemeChange={setTheme} collapsed={railCompact} onToggleCollapsed={toggleRail} />
@@ -438,13 +467,19 @@ export function Explorer() {
           aria-label="Resize inspector"
           disabled={!layout.inspectorOpen}
           {...CHROME}
-          className={cx(gutter, css({ _disabled: { display: 'none' } }))}
+          className={inspectorGutter}
         />
-        <Splitter.Panel id="inspector" {...CHROME} className={css({ hideBelow: 'md' })}>
-          {(layout.inspectorOpen || animating) && (
-            <div className={panelCard}>
-              <Inspector theme={theme} isDark={isDark} onClose={closeInspector} />
-            </div>
+        <Splitter.Panel id="inspector" {...CHROME} data-premeasure-size="" style={inspectorPremeasure} className={css({ hideBelow: 'md' })}>
+          {/* Before measuring, the empty card holds the inspector's place: its panel is 0px
+              wide unless the stored layout has it open. */}
+          {!measured ? (
+            <div className={panelCard} />
+          ) : (
+            (layout.inspectorOpen || animating) && (
+              <div className={panelCard}>
+                <Inspector theme={theme} isDark={isDark} onClose={closeInspector} />
+              </div>
+            )
           )}
         </Splitter.Panel>
       </Splitter.RootProvider>

@@ -19,3 +19,16 @@ export const THEME_IDS: ThemeId[] = THEMES.map((theme) => theme.id)
 export type Mode = 'light' | 'dark'
 export const MODE_STORAGE_KEY = 'pt-mode'
 export const THEME_STORAGE_KEY = 'pt-theme'
+
+// The explorer's panel layout (rail width or collapsed, inspector width or closed). The
+// head script reads it too, so the panels paint at their stored sizes before hydration.
+export const LAYOUT_STORAGE_KEY = 'pt-layout'
+export const PANEL_SIZES = {
+  rail: { default: 248, min: 200, max: 320, collapsed: 80 },
+  inspector: { default: 320, min: 260, max: 440 },
+  // The resize gutters between panels, and the explorer's side padding around them (md up).
+  gutter: 16,
+  inset: 16,
+  // Below this width (md) the panels are hidden: the rail is a strip, the inspector a drawer.
+  minViewport: 768,
+} as const

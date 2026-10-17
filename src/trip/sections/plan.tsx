@@ -6,7 +6,7 @@ import { Portal } from '@ark-ui/react/portal'
 import { useState } from 'react'
 import { LuCalendar, LuChevronLeft, LuChevronRight, LuMinus, LuPlus } from 'react-icons/lu'
 import { css } from '../../../styled-system/css'
-import { button } from '../../../styled-system/recipes'
+import { button, datePicker } from '../../../styled-system/recipes'
 import * as Avatar from '../../ui/avatar'
 import * as Card from '../../ui/card'
 import * as DatePicker from '../../ui/date-picker'
@@ -15,10 +15,36 @@ import * as Tooltip from '../../ui/tooltip'
 import { COMPANIONS, TRIP } from '../data'
 import { Photo } from '../photo'
 
+// "2026-11-13" -> "11/13/2026", the picker's own en-US format.
+const usDate = (iso: string) => {
+  const [y, m, d] = iso.split('-').map(Number)
+  return `${m}/${d}/${y}`
+}
+
+// The date field as the server renders it: the picker's own recipe classes and values, so
+// it's pixel-identical to the real one that replaces it after hydration.
+function StaticDates() {
+  const slot = datePicker()
+  return (
+    <div className={slot.root}>
+      <label className={slot.label}>Dates</label>
+      <div className={slot.control}>
+        <input className={slot.input} value={usDate(TRIP.start)} readOnly tabIndex={-1} aria-hidden />
+        <input className={slot.input} value={usDate(TRIP.end)} readOnly tabIndex={-1} aria-hidden />
+        <span aria-hidden className={slot.trigger}>
+          <LuCalendar />
+        </span>
+      </div>
+    </div>
+  )
+}
+
 function TripDates() {
   return (
-    // Today's date belongs to the visitor's timezone, so the picker renders on the client.
-    <ClientOnly fallback={<div className={css({ h: '16' })} />}>
+    // Today's date belongs to the visitor's timezone, so the picker renders on the client
+    // (Next won't prerender a component that reads the clock). Until then a static copy
+    // holds its exact place, so the field doesn't pop in and push the form down.
+    <ClientOnly fallback={<StaticDates />}>
       <DatePicker.Root
         selectionMode="range"
         defaultValue={[parseDate(TRIP.start), parseDate(TRIP.end)]}
@@ -95,11 +121,12 @@ export function PlanSection() {
       <Card.Root>
         {/* Clips the photo to the card's corners, inside the card so decorations drawn
             outside it (Panda's ears) aren't clipped. Wide previews set the photo beside
-            the plan; narrow ones stack it on top. */}
+            the plan from 36rem, which covers a laptop with the inspector open; narrower
+            previews (phones) stack it on top. */}
         <div
           className={css({
             display: 'grid',
-            gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/4xl': '[minmax(0, 1fr) minmax(0, 1fr)]' },
+            gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/xl': '[minmax(0, 1fr) minmax(0, 1fr)]' },
             rounded: 'inherit',
             overflow: 'hidden',
           })}
@@ -108,10 +135,10 @@ export function PlanSection() {
             photo={TRIP.photo}
             preload
             sizes="(min-width: 80rem) 30rem, 100vw"
-            className={css({ aspectRatio: { base: 'wide', '@preview/4xl': 'auto' }, minH: { '@preview/4xl': '[26rem]' } })}
+            className={css({ aspectRatio: { base: 'wide', '@preview/xl': 'auto' }, minH: { '@preview/xl': '[26rem]' } })}
           />
           <div className={css({ display: 'flex', flexDirection: 'column', minW: '0' })}>
-            <Card.Body className={css({ gap: '6', pt: '6', flex: '1', justifyContent: { '@preview/4xl': 'center' } })}>
+            <Card.Body className={css({ gap: '6', pt: '6', flex: '1', justifyContent: { '@preview/xl': 'center' } })}>
               <div className={css({ display: 'grid', gap: '2' })}>
                 <p className={css({ textStyle: 'caption', color: 'fg.muted', textTransform: 'uppercase', letterSpacing: 'wider' })}>
                   Fri 13 to Sun 15 November 2026
@@ -122,15 +149,18 @@ export function PlanSection() {
                 <p className={css({ color: 'fg.muted', maxW: 'prose' })}>Three days and two nights in the city by the bay. Pick your dates and who&apos;s coming.</p>
               </div>
 
-              {/* Dates take the full row. Travellers is a fixed width beside who's coming, so
-                  adding or removing an avatar never moves the input. */}
+              {/* Dates take the full row. Travellers is a fixed width, and who's coming is
+                  always wide enough for five avatars, so the row wraps by the column's width
+                  alone: adding or removing an avatar never moves anything. */}
               <div
                 className={css({
-                  display: 'grid',
+                  display: 'flex',
+                  flexWrap: 'wrap',
                   gap: '5',
-                  alignItems: 'end',
-                  gridTemplateColumns: { base: 'minmax(0, 1fr)', '@preview/xl': '[10rem minmax(0, 1fr)]' },
-                  '& > :first-child': { gridColumn: '1 / -1' },
+                  alignItems: 'flex-end',
+                  '& > :nth-child(1)': { flexBasis: 'full' },
+                  '& > :nth-child(2)': { flex: '[0 0 10rem]', minW: '0', '& input': { minW: '0' } },
+                  '& > :nth-child(3)': { flex: '[1 1 11rem]' },
                 })}
               >
                 <TripDates />

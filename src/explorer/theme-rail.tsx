@@ -80,6 +80,17 @@ const item = css({
   outlineOffset: '0.5',
   _checked: { outlineColor: 'var(--chrome-ring)' },
   '&:has(:focus-visible)': { outlineColor: 'focusRing' },
+  // Before hydration the radio group only knows the default theme. Until the explorer has
+  // measured, the ring follows the theme the head script put on <html> instead, so it
+  // doesn't jump from Everyday to the stored theme on reload.
+  '[data-premeasure] [data-part=item]&': { outlineColor: 'transparent' },
+  'html:not([data-panda-theme]) [data-premeasure] [data-panda-theme=everyday]&': { outlineColor: 'var(--chrome-ring)' },
+  'html[data-panda-theme=everyday] [data-premeasure] [data-panda-theme=everyday]&': { outlineColor: 'var(--chrome-ring)' },
+  'html[data-panda-theme=riso] [data-premeasure] [data-panda-theme=riso]&': { outlineColor: 'var(--chrome-ring)' },
+  'html[data-panda-theme=pixel] [data-premeasure] [data-panda-theme=pixel]&': { outlineColor: 'var(--chrome-ring)' },
+  'html[data-panda-theme=panda] [data-premeasure] [data-panda-theme=panda]&': { outlineColor: 'var(--chrome-ring)' },
+  'html[data-panda-theme=blueprint] [data-premeasure] [data-panda-theme=blueprint]&': { outlineColor: 'var(--chrome-ring)' },
+  'html[data-panda-theme=sketch] [data-premeasure] [data-panda-theme=sketch]&': { outlineColor: 'var(--chrome-ring)' },
 })
 
 // Text that belongs to one rail state fades instead of appearing or moving.
@@ -104,12 +115,22 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
         rounded: '[1.25rem]',
         overflow: 'hidden',
         '--chrome-ring': '{colors.fg.default}',
+        // A reload with the rail stored collapsed: until the explorer has measured and
+        // restored the layout, the head script's data-layout-rail shows the compact state,
+        // so the first paint matches it.
+        '[data-layout-rail=collapsed] [data-premeasure] &': {
+          '& [data-rail-part=expanded]': { opacity: '[0]' },
+          '& [data-rail-part=compact]': { opacity: '[1]' },
+          '& [data-rail-part=palette]': { gridColumn: '1', '& > span:not([data-key])': { flexGrow: '0' } },
+          '& [data-shows=expanded]': { display: 'none' },
+          '& [data-shows=collapsed]': { display: 'block' },
+        },
       })}
     >
       {/* The button is pinned to the right edge with a gutter that centers it at the
           collapsed width, so it doesn't move when the rail collapses. */}
       <div className={css({ display: 'flex', alignItems: 'center', h: '9', ps: '[22px]', pe: '[23px]', mt: '3', mb: '3', flexShrink: '0' })}>
-        <h2 aria-hidden={collapsed} className={cx(fade(!collapsed), css({ flex: '1', minW: '0', overflow: 'hidden', whiteSpace: 'nowrap', fontSize: 'xl', fontWeight: 'semibold', letterSpacing: 'tight' }))}>
+        <h2 aria-hidden={collapsed} data-rail-part="expanded" className={cx(fade(!collapsed), css({ flex: '1', minW: '0', overflow: 'hidden', whiteSpace: 'nowrap', fontSize: 'xl', fontWeight: 'semibold', letterSpacing: 'tight' }))}>
           Themes
         </h2>
         <Button
@@ -123,7 +144,9 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
           title={collapsed ? 'Expand themes ([)' : 'Collapse themes ([)'}
           className={css({ flexShrink: '0' })}
         >
-          {collapsed ? <LuPanelLeftOpen /> : <LuPanelLeftClose />}
+          {/* Both icons are rendered, so first-paint CSS can show the stored state's. */}
+          <LuPanelLeftClose data-shows="expanded" className={css({ display: collapsed ? 'none' : 'block' })} />
+          <LuPanelLeftOpen data-shows="collapsed" className={css({ display: collapsed ? 'block' : 'none' })} />
         </Button>
       </div>
       {/* aria-controls needs a stable id; Ark replaces the id given to RadioGroup.Root. */}
@@ -145,14 +168,14 @@ export function ThemeRail({ theme, onThemeChange, collapsed, onToggleCollapsed }
                       <span aria-hidden className={tile}>
                         {t.monogram}
                       </span>
-                      <RadioGroup.ItemText className={cx(fade(!collapsed), css({ minW: '0', ms: '3', truncate: true, fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display' }))}>
+                      <RadioGroup.ItemText data-rail-part="expanded" className={cx(fade(!collapsed), css({ minW: '0', ms: '3', truncate: true, fontFamily: 'display', fontWeight: 'display', letterSpacing: 'display' }))}>
                         {t.label}
                       </RadioGroup.ItemText>
                       {/* The name under the monogram, shown once the rail is collapsed. */}
-                      <span aria-hidden className={cx(fade(collapsed), css({ gridColumn: '1', alignSelf: 'start', w: '[2.25rem]', textAlign: 'center', fontSize: '[0.625rem]', lineHeight: 'tight', whiteSpace: 'nowrap', overflow: 'visible', justifySelf: 'center' }))}>
+                      <span aria-hidden data-rail-part="compact" className={cx(fade(collapsed), css({ gridColumn: '1', alignSelf: 'start', w: '[2.25rem]', textAlign: 'center', fontSize: '[0.625rem]', lineHeight: 'tight', whiteSpace: 'nowrap', overflow: 'visible', justifySelf: 'center' }))}>
                         {t.label}
                       </span>
-                      <span aria-hidden className={palette(collapsed)}>
+                      <span aria-hidden data-rail-part="palette" className={palette(collapsed)}>
                         <span className={css({ bg: 'bg.canvas' })} />
                         <span className={css({ bg: 'bg.card' })} />
                         <span data-key className={css({ bg: 'accent.subtle' })} />
