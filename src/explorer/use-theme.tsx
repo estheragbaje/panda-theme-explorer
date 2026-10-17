@@ -17,6 +17,29 @@ const specPath = (theme: ThemeId) => `/specs/${theme}.json`
 // Studio picks up a dropped file whose name ends in design-system.json.
 const specFile = (theme: ThemeId) => `${theme}.design-system.json`
 const STUDIO_URL = 'https://studio.panda-css.com/'
+
+// Panda Studio opens a design system from its URL hash: #url=<https spec URL>, or
+// #spec=gz:<gzip, base64url> carrying the spec itself (up to 200,000 characters).
+// A deployed site links to its public spec; a local one carries the spec, since Studio
+// (a public page) can't count on reaching this machine.
+const isLocalHost = (host: string) => host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host.endsWith('.local')
+const STUDIO_PAYLOAD_LIMIT = 200_000
+
+async function gzipBase64Url(text: string) {
+  const gzipped = await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer()
+  const bytes = new Uint8Array(gzipped)
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+  return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '')
+}
+
+async function studioLink(theme: ThemeId, spec: string): Promise<string | null> {
+  if (location.protocol === 'https:' && !isLocalHost(location.hostname)) {
+    return `${STUDIO_URL}#url=${encodeURIComponent(new URL(specPath(theme), location.origin).href)}`
+  }
+  const payload = `gz:${await gzipBase64Url(JSON.stringify(JSON.parse(spec)))}`
+  return payload.length <= STUDIO_PAYLOAD_LIMIT ? `${STUDIO_URL}#spec=${payload}` : null
+}
 // The spec is thousands of lines; the tab shows this many until the user asks for all.
 const PREVIEW_LINES = 60
 
@@ -117,12 +140,18 @@ function ConfigTab({ theme }: { theme: ThemeId }) {
 
 function SpecTab({ theme }: { theme: ThemeId }) {
   const [spec, setSpec] = useState<string | null>(null)
+  const [studio, setStudio] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
   useEffect(() => {
     let live = true
     fetch(specPath(theme))
       .then((r) => r.text())
-      .then((text) => live && setSpec(text))
+      .then(async (text) => {
+        if (!live) return
+        setSpec(text)
+        const link = await studioLink(theme, text)
+        if (live) setStudio(link)
+      })
       .catch(() => {})
     return () => {
       live = false
@@ -165,16 +194,17 @@ function SpecTab({ theme }: { theme: ThemeId }) {
         <button type="button" className={cx(button({ variant: 'outline', size: 'sm' }), css({ bg: 'bg.surface' }))} onClick={() => download(specFile(theme), specPath(theme))}>
           <LuDownload /> Download
         </button>
-        <button
-          type="button"
-          className={cx(button({ variant: 'solid', size: 'sm' }), css({ colorPalette: 'neutral', shadow: 'none' }))}
-          onClick={() => {
-            download(specFile(theme), specPath(theme))
-            window.open(STUDIO_URL, '_blank', 'noopener,noreferrer')
-          }}
+        {/* A real link once it's ready: Studio opens with this theme loaded. */}
+        <a
+          href={studio ?? undefined}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-disabled={studio ? undefined : true}
+          className={cx(button({ variant: 'solid', size: 'sm' }), css({ colorPalette: 'neutral', shadow: 'none', '&[aria-disabled=true]': { opacity: 'disabled', pointerEvents: 'none' } }))}
         >
           <LuExternalLink /> Open in Panda Studio
-        </button>
+          <span className={css({ srOnly: true })}> (opens in a new tab)</span>
+        </a>
       </div>
     </div>
   )
