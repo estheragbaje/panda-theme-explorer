@@ -120,7 +120,7 @@ export function PlanSection() {
     <section id="plan" aria-labelledby="trip-title" className={css({ scrollMarginTop: '16' })}>
       <Card.Root>
         {/* Clips the photo to the card's corners, inside the card so decorations drawn
-            outside it (Panda's ears) aren't clipped. Wide previews set the photo beside
+            outside it aren't clipped. Wide previews set the photo beside
             the plan from 36rem, which covers a laptop with the inspector open; narrower
             previews (phones) stack it on top. */}
         <div
@@ -213,7 +213,8 @@ export function PlanSection() {
               <p className={css({ fontSize: 'sm', color: 'fg.muted' })} aria-live="polite">
                 {travellers} {travellers === 1 ? 'traveller' : 'travellers'}, {TRIP.nights} nights
               </p>
-              <a href="#stays" className={button()}>
+              {/* The page's default action; themes may mark it (Y2K pulses it). */}
+              <a href="#stays" className={button()} data-default="">
                 Find stays
               </a>
             </Card.Footer>

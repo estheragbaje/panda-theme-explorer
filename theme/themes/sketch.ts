@@ -29,6 +29,7 @@ export const sketch = defineTheme({
         subtle: { value: { base: '#EEEEE8', _dark: '#2C3D35' } },
         card: { value: { base: '{colors.bg.surface}', _dark: '{colors.bg.surface}' } },
         overlay: { value: { base: '#FFFFFF', _dark: '#2A3A32' } },
+        sticky: { value: { base: '{colors.bg.canvas}', _dark: '{colors.bg.canvas}' } },
         inverse: { value: { base: '#2A2A2E', _dark: '#EDEBE0' } },
       },
       fg: {
@@ -110,18 +111,17 @@ export const sketch = defineTheme({
       overlay: { value: { base: '3px 4px 0 rgba(42, 42, 46, 0.18)', _dark: '3px 4px 0 rgba(0, 0, 0, 0.35)' } },
       control: { value: { base: 'none', _dark: 'none' } },
       pressed: { value: { base: 'none', _dark: 'none' } },
+      field: { value: { base: 'none', _dark: 'none' } },
     },
     assets: {
       canvas: { value: { base: ruled, _dark: chalkDust } },
       edge: { value: { base: 'none', _dark: 'none' } },
-      ears: { value: { base: 'none', _dark: 'none' } },
       cardMark: { value: { base: 'none', _dark: 'none' } },
     },
     sizes: {
       control: { sm: { value: '2.125rem' }, md: { value: '2.375rem' }, lg: { value: '2.875rem' } },
       canvasTile: { value: 'auto' },
       edge: { value: '0px' },
-      ears: { value: '0px' },
     },
     spacing: { inset: { value: '1.25rem' }, press: { value: '0px' } },
     durations: { fast: { value: '150ms' }, base: { value: '200ms' } },

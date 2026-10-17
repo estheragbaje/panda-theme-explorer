@@ -3,8 +3,8 @@
 export const THEMES = [
   { id: 'everyday', label: 'Everyday', note: 'normal', monogram: 'Ev' },
   { id: 'riso', label: 'Riso', note: 'print', monogram: 'Ri' },
+  { id: 'y2k', label: 'Y2K', note: 'Windows 98, Internet Explorer 5', monogram: 'Y2' },
   { id: 'pixel', label: 'Pixel', note: 'handheld', monogram: 'Px' },
-  { id: 'panda', label: 'Panda', note: 'soft, black and white', monogram: 'Pa' },
   { id: 'blueprint', label: 'Blueprint', note: 'technical', monogram: 'Bp' },
   { id: 'sketch', label: 'Sketch', note: 'handwritten', monogram: 'Sk' },
 ] as const

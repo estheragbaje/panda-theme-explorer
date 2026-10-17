@@ -12,7 +12,8 @@ const palette = { solid: {}, contrast: {}, subtle: {}, text: {} }
 export const defineTheme = defineThemeContract({
   semanticTokens: {
     colors: {
-      bg: { canvas: {}, surface: {}, subtle: {}, card: {}, overlay: {}, inverse: {} },
+      // sticky: bars pinned over scrolling content (the trip page's section nav).
+      bg: { canvas: {}, surface: {}, subtle: {}, card: {}, overlay: {}, sticky: {}, inverse: {} },
       fg: { default: {}, muted: {}, subtle: {}, inverse: {} },
       border: { default: {}, strong: {} },
       accent: palette,
@@ -33,10 +34,12 @@ export const defineTheme = defineThemeContract({
     // The full outline of cards and surfaces, so a theme can change its style (Blueprint's
     // dashed frames), not only its width and color.
     borders: { frame: {} },
-    shadows: { raised: {}, overlay: {}, control: {}, pressed: {} },
+    // field: the inset shading of text fields and other inputs ('none' in most themes).
+    shadows: { raised: {}, overlay: {}, control: {}, pressed: {}, field: {} },
     // Decorative slots. 'none' in themes that don't use them.
-    assets: { canvas: {}, edge: {}, ears: {}, cardMark: {} },
-    sizes: { control: { sm: {}, md: {}, lg: {} }, canvasTile: {}, edge: {}, ears: {} },
+    // edge: a strip across the top of cards (sizes.edge tall), such as Y2K's title bar.
+    assets: { canvas: {}, edge: {}, cardMark: {} },
+    sizes: { control: { sm: {}, md: {}, lg: {} }, canvasTile: {}, edge: {} },
     spacing: { inset: {}, press: {} },
     durations: { fast: {}, base: {} },
     easings: { standard: {}, emphasized: {} },

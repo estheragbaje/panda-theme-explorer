@@ -19,6 +19,7 @@ export const pixel = defineTheme({
         subtle: { value: { base: '#B9C78C', _dark: '#1E301C' } },
         card: { value: { base: '{colors.bg.surface}', _dark: '{colors.bg.surface}' } },
         overlay: { value: { base: '#E8F0C6', _dark: '#1A2A18' } },
+        sticky: { value: { base: '{colors.bg.canvas}', _dark: '{colors.bg.canvas}' } },
         inverse: { value: { base: '#0F380F', _dark: '#C6DE8C' } },
       },
       fg: {
@@ -104,18 +105,17 @@ export const pixel = defineTheme({
           _dark: 'inset 3px 3px 0 rgba(0, 0, 0, 0.3), inset -3px -3px 0 rgba(255, 255, 255, 0.25)',
         },
       },
+      field: { value: { base: 'none', _dark: 'none' } },
     },
     assets: {
       canvas: { value: { base: dots('rgba(15, 56, 15, 0.10)'), _dark: dots('rgba(155, 188, 15, 0.07)') } },
       edge: { value: { base: 'none', _dark: 'none' } },
-      ears: { value: { base: 'none', _dark: 'none' } },
       cardMark: { value: { base: 'none', _dark: 'none' } },
     },
     sizes: {
       control: { sm: { value: '2.125rem' }, md: { value: '2.375rem' }, lg: { value: '2.875rem' } },
       canvasTile: { value: '4px 4px' },
       edge: { value: '0px' },
-      ears: { value: '0px' },
     },
     spacing: { inset: { value: '1.125rem' }, press: { value: '0px' } },
     durations: { fast: { value: '160ms' }, base: { value: '200ms' } },

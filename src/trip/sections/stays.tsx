@@ -28,7 +28,7 @@ function StayCard({ stay, saved, onSavedChange }: { stay: Stay; saved: boolean; 
   return (
     <Card.Root as="article">
       {/* Clips the image to the card's corners; on the root it would also clip decorations
-          drawn outside the card, like Panda's ears. */}
+          drawn outside the card. */}
       <div className={css({ display: 'flex', flexDirection: 'column', flex: '1', rounded: 'inherit', overflow: 'hidden' })}>
         <div className={css({ position: 'relative' })}>
           <Photo photo={stay.photo} sizes="(min-width: 80rem) 20rem, (min-width: 48rem) 33vw, 100vw" className={css({ aspectRatio: 'wide' })} />

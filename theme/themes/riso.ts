@@ -13,6 +13,7 @@ export const riso = defineTheme({
         subtle: { value: { base: '#E6E6DF', _dark: '#2A2E55' } },
         card: { value: { base: '{colors.bg.surface}', _dark: '{colors.bg.surface}' } },
         overlay: { value: { base: '#FFFFFF', _dark: '#262A4C' } },
+        sticky: { value: { base: '{colors.bg.canvas}', _dark: '{colors.bg.canvas}' } },
         inverse: { value: { base: '#1A1C33', _dark: '#F2F1FA' } },
       },
       fg: {
@@ -83,18 +84,17 @@ export const riso = defineTheme({
       overlay: { value: { base: '6px 6px 0 #1A1C33', _dark: '6px 6px 0 #FF6CC0' } },
       control: { value: { base: '3px 3px 0 #1A1C33', _dark: '3px 3px 0 #F2F1FA' } },
       pressed: { value: { base: '0 0 0 #1A1C33', _dark: '0 0 0 #F2F1FA' } },
+      field: { value: { base: 'none', _dark: 'none' } },
     },
     assets: {
       canvas: { value: { base: 'none', _dark: 'none' } },
       edge: { value: { base: 'none', _dark: 'none' } },
-      ears: { value: { base: 'none', _dark: 'none' } },
       cardMark: { value: { base: 'none', _dark: 'none' } },
     },
     sizes: {
       control: { sm: { value: '2rem' }, md: { value: '2.25rem' }, lg: { value: '2.75rem' } },
       canvasTile: { value: 'auto' },
       edge: { value: '0px' },
-      ears: { value: '0px' },
     },
     spacing: { inset: { value: '1.125rem' }, press: { value: '3px' } },
     durations: { fast: { value: '160ms' }, base: { value: '220ms' } },

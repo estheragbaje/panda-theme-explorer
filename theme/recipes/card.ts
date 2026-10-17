@@ -1,8 +1,8 @@
 import { defineSlotRecipe } from '@pandacss/dev'
 
-// Decorations come from asset tokens that are 'none' in themes without them: Panda's
-// ears (assets.ears, drawn just above the top edge) and paw print (assets.cardMark, in
-// the bottom corner).
+// Decorations come from asset tokens that are 'none' (and sizes that are 0px) in themes
+// without them: a strip across the top (assets.edge, sizes.edge tall: Y2K's window title
+// bar) and a corner mark (assets.cardMark).
 export const card = defineSlotRecipe({
   className: 'card',
   slots: ['root', 'header', 'title', 'description', 'body', 'footer'],
@@ -20,17 +20,17 @@ export const card = defineSlotRecipe({
       border: 'frame',
       rounded: 'card',
       shadow: 'raised',
-      // Room for the ears, so stacked cards don't overlap (0px in themes without ears).
-      marginTop: '{sizes.ears}',
       _before: {
         content: '""',
-        position: 'absolute',
-        insetInline: '0',
-        bottom: '[100%]',
-        h: 'ears',
-        bgImage: 'ears',
+        flexShrink: '0',
+        h: 'edge',
+        bgImage: 'edge',
         bgRepeat: 'no-repeat',
-        pointerEvents: 'none',
+        bgSize: '[100% 100%]',
+        borderTopLeftRadius: 'inherit',
+        borderTopRightRadius: 'inherit',
+        // Y2K: the title bar sits inside the window's bevel.
+        _themeY2k: { m: '[3px 3px 0]' },
       },
     },
     header: { display: 'flex', flexDirection: 'column', gap: '1', p: 'inset', pb: '0' },

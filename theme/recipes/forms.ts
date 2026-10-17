@@ -29,6 +29,8 @@ const mark = {
   _focusVisible: focusRing,
   _invalid: { borderColor: 'danger.solid' },
   _checked: { bg: 'colorPalette.solid', borderColor: 'colorPalette.solid' },
+  // Y2K: a sunken white box with a black tick (a budgeted theme condition).
+  _themeY2k: { shadow: 'field', _checked: { bg: 'bg.overlay', color: 'fg.default', borderColor: 'border.default' } },
 } as const
 
 const fieldLabel = { textStyle: 'label', color: 'fg.default' } as const
@@ -107,6 +109,8 @@ export const radioGroup = defineSlotRecipe({
       _checked: {
         borderColor: 'colorPalette.solid',
         _after: { content: '""', w: '2', h: '2', rounded: 'full', bg: 'colorPalette.solid' },
+        // Y2K: a black dot in a white ring.
+        _themeY2k: { bg: 'bg.overlay', borderColor: 'border.default', _after: { bg: 'fg.default' } },
       },
     },
     itemText: { textStyle: 'body', userSelect: 'none' },
@@ -212,6 +216,8 @@ export const slider = defineSlotRecipe({
       cursor: 'grab',
       _dragging: { cursor: 'grabbing' },
       _focusVisible: focusRing,
+      // Y2K: a raised grey tab with a point, like a Windows trackbar thumb.
+      _themeY2k: { w: '3', h: '5', rounded: '0', borderWidth: '0', bg: 'bg.surface', clipPath: 'polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%)' },
     },
     markerGroup: { mt: '1' },
     marker: { textStyle: 'caption', color: 'fg.muted' },

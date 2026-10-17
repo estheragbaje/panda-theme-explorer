@@ -16,6 +16,7 @@ export const blueprint = defineTheme({
         subtle: { value: { base: '#E2ECF7', _dark: '#143761' } },
         card: { value: { base: '{colors.bg.surface}', _dark: '{colors.bg.surface}' } },
         overlay: { value: { base: '#FFFFFF', _dark: '#12345C' } },
+        sticky: { value: { base: '{colors.bg.canvas}', _dark: '{colors.bg.canvas}' } },
         inverse: { value: { base: '#0B2440', _dark: '#E3EEFA' } },
       },
       fg: {
@@ -84,18 +85,17 @@ export const blueprint = defineTheme({
       overlay: { value: { base: '4px 4px 0 rgba(0, 80, 200, 0.14)', _dark: '4px 4px 0 rgba(0, 0, 0, 0.35)' } },
       control: { value: { base: 'none', _dark: 'none' } },
       pressed: { value: { base: 'none', _dark: 'none' } },
+      field: { value: { base: 'none', _dark: 'none' } },
     },
     assets: {
       canvas: { value: { base: grid('rgba(0, 80, 200, 0.07)'), _dark: grid('rgba(124, 196, 255, 0.09)') } },
       edge: { value: { base: 'none', _dark: 'none' } },
-      ears: { value: { base: 'none', _dark: 'none' } },
       cardMark: { value: { base: 'none', _dark: 'none' } },
     },
     sizes: {
       control: { sm: { value: '1.875rem' }, md: { value: '2.125rem' }, lg: { value: '2.5rem' } },
       canvasTile: { value: '16px 16px' },
       edge: { value: '0px' },
-      ears: { value: '0px' },
     },
     spacing: { inset: { value: '1rem' }, press: { value: '0px' } },
     durations: { fast: { value: '80ms' }, base: { value: '120ms' } },

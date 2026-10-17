@@ -26,6 +26,8 @@ export const controlSurface = {
   borderWidth: 'control',
   borderColor: 'border.default',
   rounded: 'control',
+  // Sunken in themes that shade fields (Y2K); 'none' elsewhere.
+  shadow: 'field',
   ...colorTransition,
   _hover: { borderColor: 'border.strong' },
   _focusVisible: focusRing,

@@ -4,7 +4,9 @@
 //
 //   pnpm check:contrast
 //
-// Translucent colors are composited over the background they sit on.
+// Translucent colors are composited over the background they sit on. Surfaces that float
+// over content (bg.overlay, bg.sticky) can sit over any photo, so when they're
+// translucent they're also checked over pure black and pure white.
 import { registerHooks } from 'node:module'
 
 // The theme files use extensionless imports (bundler style); resolve them to .ts here.
@@ -24,7 +26,7 @@ const { themes } = await import('../theme/themes/index.ts')
 
 // [foreground, background, minimum ratio, what it is]
 const PAIRS = [
-  ...['bg.canvas', 'bg.surface', 'bg.card', 'bg.subtle', 'bg.overlay'].flatMap((bg) => [
+  ...['bg.canvas', 'bg.surface', 'bg.card', 'bg.subtle', 'bg.overlay', 'bg.sticky'].flatMap((bg) => [
     ['fg.default', bg, 4.5, 'body text'],
     ['fg.muted', bg, 4.5, 'secondary text'],
     ['fg.subtle', bg, 3, 'placeholders, switch track'],
@@ -43,6 +45,8 @@ const PAIRS = [
   ['fg.inverse', 'bg.inverse', 4.5, 'tooltips'],
   ['highlight.fg', 'highlight.bg', 4.5, 'selection, marks'],
 ]
+
+const FLOATING = ['bg.overlay', 'bg.sticky']
 
 function lookup(tree, path) {
   let node = tree
@@ -96,13 +100,18 @@ for (const [id, theme] of Object.entries(themes)) {
   for (const mode of ['base', '_dark']) {
     const canvas = parse(resolve(colors, 'bg.canvas', mode))
     for (const [fg, bg, min, use] of PAIRS) {
-      const back = over(parse(resolve(colors, bg, mode)), canvas)
-      const value = ratio(over(parse(resolve(colors, fg, mode)), back), back)
-      checked++
-      if (value < min) {
-        failures++
-        const label = mode === 'base' ? 'light' : 'dark'
-        console.log(`FAIL  ${id} ${label}  ${fg} on ${bg}  ${value.toFixed(2)}:1 (needs ${min}:1, ${use})`)
+      const top = parse(resolve(colors, bg, mode))
+      const behind = [['canvas', canvas]]
+      if (FLOATING.includes(bg) && top[3] < 1) behind.push(['black', [0, 0, 0, 1]], ['white', [255, 255, 255, 1]])
+      for (const [under, base] of behind) {
+        const back = over(top, base)
+        const value = ratio(over(parse(resolve(colors, fg, mode)), back), back)
+        checked++
+        if (value < min) {
+          failures++
+          const label = mode === 'base' ? 'light' : 'dark'
+          console.log(`FAIL  ${id} ${label}  ${fg} on ${bg} over ${under}  ${value.toFixed(2)}:1 (needs ${min}:1, ${use})`)
+        }
       }
     }
   }

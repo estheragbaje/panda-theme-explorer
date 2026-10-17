@@ -98,7 +98,8 @@ export function TripPage({ footer }: { footer?: ReactNode }) {
               position: 'sticky',
               top: '0',
               zIndex: 'sticky',
-              bg: 'bg.canvas',
+              // Content scrolls under the nav, so it's a sticky surface.
+              layerStyle: 'sticky',
             })}
           >
             <Toc.List ref={navListRef} className={css({ maxW: '5xl', mx: 'auto', px: { base: '4', '@preview/xl': '6' }, pt: '4', pb: '2' })}>

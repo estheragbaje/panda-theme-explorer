@@ -26,6 +26,10 @@ export const layerStyles = defineLayerStyles({
   overlay: {
     value: { backgroundColor: 'bg.overlay', border: 'frame', borderRadius: 'card', boxShadow: 'overlay' },
   },
+  // Bars pinned over scrolling content, such as the trip page's section nav.
+  sticky: {
+    value: { backgroundColor: 'bg.sticky' },
+  },
   inset: {
     value: { backgroundColor: 'bg.subtle', borderRadius: 'control' },
   },

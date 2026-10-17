@@ -3,10 +3,12 @@
 // load a theme by URL. Runs panda codegen once per theme, in parallel, with
 // panda.spec.config.ts; the generated system goes to a cache folder, not styled-system.
 import { spawn } from 'node:child_process'
-import { mkdirSync, readFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, rmSync } from 'node:fs'
 
 // The theme ids come from the main spec, which panda codegen has just written.
 const ids = Object.keys(JSON.parse(readFileSync('public/design-system.json', 'utf8')).themes)
+// Start clean, so a renamed or removed theme leaves no stale spec behind.
+rmSync('public/specs', { recursive: true, force: true })
 mkdirSync('public/specs', { recursive: true })
 
 const run = (id) =>

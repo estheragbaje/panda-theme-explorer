@@ -1,6 +1,17 @@
 import { defineRecipe } from '@pandacss/dev'
 import { colorTransition, disabled, focusRing } from './shared'
 
+// Y2K (Windows 98/2000) draws solid, outline and tonal buttons alike: raised grey that
+// sinks when pressed (a budgeted theme condition).
+const classicButton = {
+  bg: 'bg.surface',
+  color: 'fg.default',
+  borderColor: 'transparent',
+  shadow: 'control',
+  _hover: { bg: 'bg.surface' },
+  _active: { shadow: 'pressed' },
+} as const
+
 // Four roles, as on formula1.com: solid (primary), outline (secondary), tonal, ghost.
 // solid and tonal follow colorPalette (accent by default).
 export const button = defineRecipe({
@@ -26,8 +37,6 @@ export const button = defineRecipe({
     _active: { pressOffset: 'press' },
     // Sketch's hand-drawn buttons tilt slightly under the pointer (a budgeted theme condition).
     _themeSketch: { _hover: { rotate: '[-0.6deg]' } },
-    // Panda's soft controls squish on press (a budgeted theme condition).
-    _themePanda: { _active: { scale: '[0.97]' } },
     _focusVisible: focusRing,
     _disabled: disabled,
     '& svg': { w: '4', h: '4', flexShrink: '0' },
@@ -40,17 +49,22 @@ export const button = defineRecipe({
         shadow: 'control',
         _hover: { bg: 'colorPalette.solid/90' },
         _active: { shadow: 'pressed' },
+        // Y2K: every Windows button is the same raised grey; the page's default action
+        // also gets the black border Windows drew around the default button.
+        _themeY2k: { ...classicButton, '&[data-default]': { outline: '1px solid', outlineColor: 'fg.default', outlineOffset: '0' } },
       },
       outline: {
         bg: 'bg.surface',
         color: 'fg.default',
         borderColor: 'border.strong',
         _hover: { bg: 'bg.subtle' },
+        _themeY2k: classicButton,
       },
       tonal: {
         bg: 'colorPalette.subtle',
         color: 'colorPalette.text',
         _hover: { bg: 'colorPalette.subtle/70' },
+        _themeY2k: classicButton,
       },
       ghost: {
         bg: 'transparent',

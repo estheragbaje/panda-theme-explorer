@@ -8,10 +8,23 @@ export const progress = defineSlotRecipe({
     root: { colorPalette: 'accent', display: 'flex', flexDirection: 'column', gap: '1.5', w: 'full' },
     label: { textStyle: 'label' },
     valueText: { textStyle: 'numeric', fontSize: 'sm', color: 'fg.muted' },
-    track: { h: '2', rounded: 'full', bg: 'bg.subtle', overflow: 'hidden' },
+    track: {
+      h: '2',
+      rounded: 'full',
+      bg: 'bg.subtle',
+      overflow: 'hidden',
+      // Y2K: a sunken white trough, tall enough for blocks (a budgeted theme condition).
+      _themeY2k: { h: '4', p: '0.5', rounded: '0', bg: 'bg.overlay', shadow: 'field' },
+    },
     range: {
       h: 'full',
       bg: 'colorPalette.solid',
+      // Y2K: separate blocks, as Windows drew progress.
+      _themeY2k: {
+        bg: 'transparent',
+        rounded: '0',
+        bgImage: 'repeating-linear-gradient(90deg, var(--colors-color-palette-solid) 0 8px, transparent 8px 10px)',
+      },
       rounded: 'full',
       transitionProperty: 'width',
       transitionDuration: 'base',
