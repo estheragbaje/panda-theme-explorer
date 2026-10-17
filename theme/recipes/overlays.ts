@@ -1,4 +1,4 @@
-import { datePickerAnatomy, drawerAnatomy, menuAnatomy, selectAnatomy, toastAnatomy, tooltipAnatomy } from '@ark-ui/react/anatomy'
+import { datePickerAnatomy, dialogAnatomy, drawerAnatomy, selectAnatomy, toastAnatomy, tooltipAnatomy } from '@ark-ui/react/anatomy'
 import { defineSlotRecipe } from '@pandacss/dev'
 import { colorTransition, controlSurface, disabled, focusRing, listItem, overlayContent } from './shared'
 
@@ -165,6 +165,47 @@ export const tooltip = defineSlotRecipe({
 })
 
 // Bottom sheet. Used for the inspector on mobile.
+// A centered dialog with a header (title, description, close) over a body that scrolls.
+export const dialog = defineSlotRecipe({
+  className: 'dialog',
+  slots: dialogAnatomy.keys(),
+  base: {
+    backdrop: {
+      position: 'fixed',
+      inset: '0',
+      zIndex: 'overlay',
+      bg: 'bg.inverse/40',
+      _open: { animationName: 'fadeIn', animationDuration: 'base' },
+      _closed: { animationName: 'fadeOut', animationDuration: 'fast' },
+    },
+    positioner: { position: 'fixed', inset: '0', zIndex: 'overlay', display: 'flex', alignItems: 'center', justifyContent: 'center', p: '4' },
+    content: {
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4',
+      // One fixed size (capped only by small screens), so neither switching tabs nor
+      // expanding content ever resizes the dialog.
+      w: '[min(48rem, 100%)]',
+      h: '[min(44rem, 100%)]',
+      p: '6',
+      bg: 'bg.overlay',
+      color: 'fg.default',
+      borderWidth: 'card',
+      borderColor: 'border.default',
+      rounded: 'card',
+      shadow: 'overlay',
+      outline: 'none',
+      _open: { animationName: 'scaleIn', animationDuration: 'base', animationTimingFunction: 'emphasized' },
+      _closed: { animationName: 'scaleOut', animationDuration: 'fast', animationTimingFunction: 'standard' },
+    },
+    title: { textStyle: 'title' },
+    description: { fontSize: 'sm', color: 'fg.muted' },
+    trigger: {},
+    closeTrigger: { ...iconTrigger, position: 'absolute', top: '4', insetEnd: '4' },
+  },
+})
+
 export const drawer = defineSlotRecipe({
   className: 'drawer',
   slots: drawerAnatomy.keys(),
@@ -241,33 +282,3 @@ export const toast = defineSlotRecipe({
   },
 })
 
-// Ark Menu: action lists such as the explorer's export options. Items carry an icon, a
-// label and an optional muted hint; groups get a small caption.
-export const menu = defineSlotRecipe({
-  className: 'menu',
-  slots: menuAnatomy.keys(),
-  base: {
-    content: {
-      ...overlayContent,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '0.5',
-      minW: '64',
-      p: '1.5',
-      outline: 'none',
-    },
-    item: {
-      ...listItem,
-      gap: '2.5',
-      py: '2',
-      fontSize: 'sm',
-      color: 'fg.default',
-      '& svg': { w: '4', h: '4', flexShrink: '0', color: 'fg.muted' },
-    },
-    itemText: { flex: '1', minW: '0' },
-    itemGroup: { display: 'flex', flexDirection: 'column', gap: '0.5' },
-    itemGroupLabel: { px: '2.5', pt: '1.5', pb: '1', textStyle: 'caption', fontWeight: 'medium', color: 'fg.subtle' },
-    separator: { h: '[1px]', my: '1', mx: '1', bg: 'border.default', borderWidth: '0' },
-    indicator: { display: 'inline-flex', transitionProperty: 'rotate', transitionDuration: 'fast', _open: { rotate: '[180deg]' } },
-  },
-})

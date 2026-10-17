@@ -19,7 +19,7 @@ import { ModeSwitch } from './mode-switch'
 import { PandaLogo } from './panda-logo'
 import { setTheme, useTheme } from './theme-choice'
 import { ThemeRail } from './theme-rail'
-import { ThemeExport } from './theme-export'
+import { UseTheme } from './use-theme'
 
 // The trip page doesn't depend on layout state, so dragging a panel doesn't re-render it.
 const Canvas = memo(TripPage)
@@ -154,7 +154,7 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
           {/* Icon-only on phones, so the header fits the widest theme faces (Pixel). */}
           <span className={css({ hideBelow: 'sm' })}>Inspector</span>
         </button>
-        <ThemeExport theme={theme} />
+        <UseTheme theme={theme} />
         <ModeSwitch />
       </div>
     </header>

@@ -5,7 +5,7 @@ import { avatar, progress } from './display'
 import { checkbox, field, numberInput, radioGroup, ratingGroup, segmentGroup, slider, tagsInput, toggle } from './forms'
 import { input, textarea } from './input'
 import { collapsible, splitter, tabs, toc } from './navigation'
-import { datePicker, drawer, menu, select, toast, tooltip } from './overlays'
+import { datePicker, dialog, drawer, select, toast, tooltip } from './overlays'
 import { switchRecipe } from './switch'
 
 export const recipes = { button, input, textarea, badge, kbd }
@@ -29,7 +29,7 @@ export const slotRecipes = {
   select,
   datePicker,
   tooltip,
-  menu,
+  dialog,
   drawer,
   toast,
   tabs,

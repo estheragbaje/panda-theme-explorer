@@ -1,6 +1,6 @@
 import { token } from '../../styled-system/tokens'
 import type { Token } from '../../styled-system/types/tokens'
-import { DEFAULT_THEME, THEMES, type ThemeId } from '../../theme/registry'
+import { DEFAULT_THEME, type ThemeId } from '../../theme/registry'
 import { themes } from '../../theme/themes'
 
 // Reads a theme's contract tokens straight from its definition, for the inspector.
@@ -67,12 +67,12 @@ export function themeTokens(id: ThemeId): TokenRow[] {
 
 // A theme's raw values by path and mode, before references are shown as "→ name".
 function rawValues(id: ThemeId): Map<string, { light: string; dark: string }> {
-  const out: { cssVar: string; light: string; dark: string; path?: string }[] = []
+  const out: { path: string; light: string; dark: string }[] = []
   const map = new Map<string, { light: string; dark: string }>()
   for (const [category, tree] of Object.entries(themes[id].semanticTokens)) {
     const start = out.length
-    walkRaw(tree as Record<string, unknown>, category, [], out, false)
-    for (const row of out.slice(start)) map.set(row.path!, { light: row.light, dark: row.dark })
+    walkRaw(tree as Record<string, unknown>, category, [], out)
+    for (const row of out.slice(start)) map.set(row.path, { light: row.light, dark: row.dark })
   }
   return map
 }
@@ -100,57 +100,75 @@ export function differsFromBaseline(id: ThemeId, mode: 'light' | 'dark'): Set<st
   return changed
 }
 
-// The theme as a standalone file for any Panda v2 project: Panda's own defineThemeVariant,
-// not this repo's contract helper, which only exists here.
-export function themeSource(id: ThemeId): string {
-  const body = JSON.stringify(themes[id], null, 2).replace(/"([a-zA-Z_$][\w$]*)":/g, '$1:')
-  const label = THEMES.find((t) => t.id === id)?.label ?? id
+// Source formatting for the config, matching Prettier (single quotes): an object stays on
+// one line while it fits in 80 columns and is expanded otherwise; a string that doesn't
+// fit moves below its key, unless the key is 4 characters or fewer.
+const WIDTH = 80
+const IDENTIFIER = /^[a-zA-Z_$][\w$]*$/
+// Single quotes, unless the string holds more single quotes than double ones (as Prettier).
+const quote = (v: string) => {
+  const q = (v.match(/'/g)?.length ?? 0) > (v.match(/"/g)?.length ?? 0) ? '"' : "'"
+  return q + v.replace(/\\/g, '\\\\').replaceAll(q, `\\${q}`) + q
+}
+const key = (k: string) => (IDENTIFIER.test(k) ? k : quote(k))
+function inline(v: unknown): string {
+  if (typeof v === 'string') return quote(v)
+  if (v && typeof v === 'object') return `{ ${Object.entries(v).map(([k, x]) => `${key(k)}: ${inline(x)}`).join(', ')} }`
+  return String(v)
+}
+function property(k: string, v: unknown, indent: string): string {
+  const flat = `${indent}${key(k)}: ${inline(v)},`
+  if (flat.length <= WIDTH) return flat
+  if (v && typeof v === 'object') {
+    const inner = Object.entries(v).map(([k2, x]) => property(k2, x, indent + '  '))
+    return `${indent}${key(k)}: {\n${inner.join('\n')}\n${indent}},`
+  }
+  return key(k).length <= 4 ? flat : `${indent}${key(k)}:\n${indent}  ${inline(v)},`
+}
+
+// The theme as a complete panda.config.ts, in the standard layout: its tokens are the
+// config's semantic tokens, so they apply directly (no theme attribute) and _dark covers
+// dark mode.
+export function themeConfig(id: ThemeId): string {
   return [
-    `// ${label}, from Panda Themes. Register it in panda.config.ts:`,
-    `//   themes: { ${id} },`,
-    `//   staticCss: { themes: ['${id}'] },`,
-    `// then add data-panda-theme="${id}" to the element it should style, and the dark class for`,
-    `// dark mode (Panda's _dark condition). Fonts are read from --font-* variables your project`,
-    `// defines, for example with next/font.`,
-    `import { defineThemeVariant } from '@pandacss/dev'`,
+    `import { defineConfig } from '@pandacss/dev';`,
     ``,
-    `export const ${id} = defineThemeVariant(${body})`,
+    `export default defineConfig({`,
+    `  presets: ['@pandacss/preset-base'],`,
+    ``,
+    `  // Whether to use css reset`,
+    `  preflight: true,`,
+    ``,
+    `  // Where to look for your css declarations`,
+    `  include: ['./src/**/*.{js,jsx,ts,tsx}'],`,
+    ``,
+    `  // Files to exclude`,
+    `  exclude: [],`,
+    ``,
+    `  // Useful for theme customization`,
+    `  theme: {`,
+    `    extend: {`,
+    property('semanticTokens', themes[id].semanticTokens, '      '),
+    `    },`,
+    `  },`,
+    ``,
+    `  // The output directory for your css system`,
+    `  outdir: 'styled-system',`,
+    `});`,
     ``,
   ].join('\n')
 }
 
-// "{colors.bg.surface} solid" -> "var(--colors-bg-surface) solid"
-const toCssValue = (value: string) => value.replace(/\{([a-zA-Z]+(?:\.[\w-]+)+)\}/g, (_, path: string) => token.var(path as Token))
-
-function walkRaw(node: Record<string, unknown>, category: string, trail: string[], out: { cssVar: string; light: string; dark: string; path?: string }[], asCss = true) {
+function walkRaw(node: Record<string, unknown>, category: string, trail: string[], out: { path: string; light: string; dark: string }[]) {
   for (const [key, child] of Object.entries(node)) {
     if (!child || typeof child !== 'object') continue
     if ('value' in child) {
       const value = (child as { value: Value }).value
       const light = typeof value === 'object' ? value.base : String(value)
       const dark = typeof value === 'object' ? (value._dark ?? value.base) : String(value)
-      const path = `${category}.${[...trail, key].join('.')}`
-      const cssVar = token.var(path as Token).replace(/^var\((.+)\)$/, '$1')
-      out.push({ cssVar, path, light: asCss ? toCssValue(light) : light, dark: asCss ? toCssValue(dark) : dark })
+      out.push({ path: `${category}.${[...trail, key].join('.')}`, light, dark })
     } else {
-      walkRaw(child as Record<string, unknown>, category, [...trail, key], out, asCss)
+      walkRaw(child as Record<string, unknown>, category, [...trail, key], out)
     }
   }
-}
-
-// The theme as plain CSS custom properties, for projects that don't use Panda. Light
-// values sit on :root; .dark overrides only what changes. Font tokens point at this
-// project's next/font variables (--font-*), which a host project defines itself.
-export function themeCss(id: ThemeId): string {
-  const rows: { cssVar: string; light: string; dark: string }[] = []
-  for (const [category, tree] of Object.entries(themes[id].semanticTokens)) {
-    walkRaw(tree as Record<string, unknown>, category, [], rows)
-  }
-  const block = (selector: string, lines: string[]) => `${selector} {\n${lines.map((l) => `  ${l}`).join('\n')}\n}`
-  return [
-    `/* ${id} theme from Panda Themes. Add the .dark class to an ancestor for dark mode. */`,
-    block(':root', rows.map((r) => `${r.cssVar}: ${r.light};`)),
-    block('.dark', rows.filter((r) => r.dark !== r.light).map((r) => `${r.cssVar}: ${r.dark};`)),
-    '',
-  ].join('\n\n')
 }
