@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { css } from '../../styled-system/css'
 import * as Toc from '../ui/toc'
 import { SECTIONS, type CurrencyCode } from './data'
@@ -15,8 +15,9 @@ import { CurrencyContext } from './shared'
 // "A long weekend in San Francisco": the page every theme is previewed on. It is its own
 // scroll container and the `preview` container that container queries measure, so it
 // adapts to the width it's given (the canvas between the rail and the inspector), not
-// to the window.
-export function TripPage() {
+// to the window. `footer` is rendered at the end of the scroll area (the explorer's footer
+// on phones).
+export function TripPage({ footer }: { footer?: ReactNode }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLElement>(null)
   const navListRef = useRef<HTMLUListElement>(null)
@@ -126,6 +127,7 @@ export function TripPage() {
             <PreferencesSection />
           </Toc.Content>
         </Toc.Root>
+        {footer}
       </div>
     </CurrencyContext.Provider>
   )

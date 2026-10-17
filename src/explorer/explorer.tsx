@@ -222,6 +222,8 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
 
 const footerLink = css({
   color: 'fg.default',
+  // A name and its logo never split across lines.
+  whiteSpace: 'nowrap',
   textDecorationLine: 'underline',
   textDecorationColor: 'border.default',
   textUnderlineOffset: '[3px]',
@@ -276,24 +278,37 @@ const socialLink = css({
   '& svg': { w: '4', h: '4' },
 })
 
-function Footer() {
+// Two placements: under the panels from md up, and on phones at the end of the preview's
+// scroll area, where a footer pinned below the page would take space from it permanently.
+const footerPlacement = {
+  shell: css({
+    hideBelow: 'md',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '6',
+    px: '6',
+    pt: '16',
+    pb: '6',
+    flexShrink: '0',
+  }),
+  // Inside the themed preview, so it sets the chrome's own background.
+  preview: css({
+    hideFrom: 'md',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '3',
+    px: '4',
+    py: '6',
+    bg: 'bg.surface',
+    borderTopWidth: 'card',
+    borderColor: 'border.default',
+  }),
+}
+
+function Footer({ placement }: { placement: keyof typeof footerPlacement }) {
   return (
-    <footer
-      {...CHROME}
-      className={css({
-        hideBelow: 'md',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '6',
-        px: '6',
-        pt: '16',
-        pb: '6',
-        flexShrink: '0',
-        fontSize: 'sm',
-        color: 'fg.muted',
-      })}
-    >
+    <footer {...CHROME} className={cx(css({ display: 'flex', fontSize: 'sm', color: 'fg.muted' }), footerPlacement[placement])}>
       <p>
         <span className={css({ color: 'fg.default', fontWeight: 'medium' })}>Theme Explorer</span>
         <span aria-hidden className={css({ mx: '2.5', color: 'fg.subtle' })}>|</span>
@@ -310,7 +325,7 @@ function Footer() {
           <NewTabHint />
         </a>
       </p>
-      <div className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
+      <div className={css({ display: 'flex', alignItems: 'center', gap: '3', flexWrap: 'wrap' })}>
         <p>
           Created by <span className={css({ color: 'fg.default', fontWeight: 'medium' })}>Esther Adebayo</span>
         </p>
@@ -328,6 +343,9 @@ function Footer() {
   )
 }
 
+// One element for the canvas's whole life, so the memoized trip page never re-renders for it.
+const PREVIEW_FOOTER = <Footer placement="preview" />
+
 // Phones: a horizontal theme picker under the header instead of the rail.
 function ThemeStrip({ theme }: { theme: ThemeId }) {
   return (
@@ -337,7 +355,8 @@ function ThemeStrip({ theme }: { theme: ThemeId }) {
       orientation="horizontal"
       aria-label="Theme"
       {...CHROME}
-      className={css({ hideFrom: 'md', flexWrap: 'nowrap', overflowX: 'auto', gap: '2', px: '4', pb: '3', scrollbarWidth: 'none', '--chrome-ring': '{colors.fg.default}' })}
+      // pt: room for the selected chip's outline, which the scrolling strip would clip.
+      className={css({ hideFrom: 'md', flexWrap: 'nowrap', overflowX: 'auto', gap: '2', px: '4', pt: '1.5', pb: '3', scrollbarWidth: 'none', '--chrome-ring': '{colors.fg.default}' })}
     >
       {THEMES.map((t) => (
         <RadioGroup.Item
@@ -579,7 +598,7 @@ export function Explorer() {
             })}
           >
             <div className={css({ h: 'full' })} style={frozenCanvas === null ? undefined : { width: frozenCanvas }}>
-              <Canvas />
+              <Canvas footer={PREVIEW_FOOTER} />
             </div>
           </main>
         </Splitter.Panel>
@@ -605,7 +624,7 @@ export function Explorer() {
         </Splitter.Panel>
       </Splitter.RootProvider>
       </div>
-      <Footer />
+      <Footer placement="shell" />
 
       {/* Phones: the inspector as a bottom sheet. */}
       <Drawer.Root open={drawerOpen} onOpenChange={(d) => setDrawerOpen(d.open)}>
