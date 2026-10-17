@@ -4,8 +4,14 @@ import { fontVariables } from "./fonts";
 import { modeScript } from "./mode-script";
 
 export const metadata: Metadata = {
-  title: "Panda Themes",
-  description: "Six themes built with Panda CSS, one component set.",
+  title: "Theme Explorer",
+  description: "Six Panda CSS themes on one page built with Ark UI. Preview each in light and dark, then use it in your own project.",
+  applicationName: "Theme Explorer",
+  openGraph: {
+    title: "Theme Explorer",
+    description: "Six Panda CSS themes on one page built with Ark UI. Preview each in light and dark, then use it in your own project.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

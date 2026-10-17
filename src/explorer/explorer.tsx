@@ -4,6 +4,7 @@ import { useHotkeys } from '@ark-ui/react/hotkeys'
 import { Portal } from '@ark-ui/react/portal'
 import { useSplitter } from '@ark-ui/react/splitter'
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
+import { FaGithub, FaLinkedin, FaXTwitter } from 'react-icons/fa6'
 import { LuPanelRightClose, LuPanelRightOpen } from 'react-icons/lu'
 import { css, cx } from '../../styled-system/css'
 import { button } from '../../styled-system/recipes'
@@ -121,14 +122,69 @@ const inspectorGutter = cx(
 const newTab = { target: '_blank', rel: 'noopener noreferrer' } as const
 const NewTabHint = () => <span className={css({ srOnly: true })}> (opens in a new tab)</span>
 
+// The selected theme, centered in the header: its monogram tile, drawn in the theme itself
+// like the rail's tiles, and its name. From lg up only: narrower headers can't center it
+// beside the actions, and there the rail (or the phone strip) shows the selection.
+function ActiveTheme({ theme }: { theme: ThemeId }) {
+  const active = THEMES.find((t) => t.id === theme) ?? THEMES[0]
+  return (
+    <p
+      aria-live="polite"
+      className={css({
+        hideBelow: 'lg',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        gap: '2',
+        // A fixed width that fits the longest name (Everyday, Blueprint), so the badge
+        // doesn't resize as the theme changes.
+        w: '44',
+        h: '9',
+        px: '1.5',
+        fontSize: 'sm',
+        fontWeight: 'medium',
+        bg: 'bg.surface',
+        borderWidth: 'card',
+        borderColor: 'border.default',
+        rounded: 'full',
+      })}
+    >
+      <span
+        aria-hidden
+        data-panda-theme={active.id}
+        className={css({
+          display: 'grid',
+          placeItems: 'center',
+          w: '6',
+          h: '6',
+          bg: 'accent.solid',
+          color: 'accent.contrast',
+          fontFamily: 'display',
+          fontWeight: 'display',
+          letterSpacing: 'display',
+          fontSize: '[0.625rem]',
+          rounded: 'full',
+        })}
+      >
+        {active.monogram}
+      </span>
+      <span>
+        <span className={css({ color: 'fg.muted', fontWeight: 'normal' })}>Theme: </span>
+        {active.label}
+      </span>
+    </p>
+  )
+}
+
 function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; inspectorOpen: boolean; onToggleInspector: () => void }) {
   return (
     <header
       {...CHROME}
       className={css({
-        display: 'flex',
+        // Three columns, so the active theme sits at the true center whatever the sides hold.
+        display: 'grid',
+        gridTemplateColumns: { base: '[auto 1fr]', lg: '[1fr auto 1fr]' },
         alignItems: 'center',
-        justifyContent: 'space-between',
         gap: '3',
         py: { base: '3', md: '5' },
         px: { base: '4', md: '5' },
@@ -137,6 +193,7 @@ function Header({ theme, inspectorOpen, onToggleInspector }: { theme: ThemeId; i
       })}
     >
       <PandaLogo />
+      <ActiveTheme theme={theme} />
       <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '2' })}>
         <button
           type="button"
@@ -175,12 +232,60 @@ const footerLink = css({
   _focusVisible: { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '0.5' },
 })
 
+// The marks of the two libraries the site is built with, at text size beside their names.
+const libraryMark = css({ display: 'inline-block', w: '4', h: '4', me: '1.5', verticalAlign: '[-3px]' })
+
+function PandaMark() {
+  return (
+    <svg viewBox="0 0.3 33.05 33.4" fill="none" aria-hidden className={libraryMark}>
+      <path d="M0 4.12886C0 2.01551 1.71321 0.302307 3.82656 0.302307H29.221C31.3343 0.302307 33.0475 2.01551 33.0475 4.12886V29.8711C33.0475 31.9845 31.3343 33.6977 29.221 33.6977H3.82656C1.71321 33.6977 0 31.9845 0 29.8711V4.12886Z" fill="#F6E458" />
+      <path d="M21.1783 7.76704C19.355 7.24329 17.4952 7.17211 15.6 7.34161C14.5394 7.45181 13.5198 7.66234 12.5363 8.03177C10.4105 8.83028 8.81442 10.2132 7.86268 12.2955C7.18036 13.7883 6.93376 15.374 6.90806 17.0011C6.8809 18.7205 7.09638 20.4162 7.43877 22.0974C7.74912 23.6212 8.16242 25.1152 8.75268 26.5574C8.80876 26.6944 8.87861 26.7406 9.02829 26.7403C10.8951 26.7363 12.762 26.7363 14.6289 26.7363C15.1815 26.7363 15.7342 26.7363 16.2869 26.7362C16.3292 26.7362 16.3715 26.7339 16.4202 26.7312C16.445 26.7299 16.4715 26.7284 16.5005 26.7271C16.4893 26.7004 16.4793 26.6759 16.4698 26.6529C16.4514 26.6077 16.4353 26.5684 16.4173 26.5299C16.2823 26.2411 16.1445 25.9536 16.0067 25.666C15.7078 25.0422 15.409 24.4184 15.1387 23.7824C14.3188 21.8537 13.691 19.8678 13.4994 17.7657C13.4149 16.8382 13.4266 15.916 13.684 15.0122C13.9781 13.9791 14.6093 13.2498 15.6558 12.9449C16.6168 12.665 17.5912 12.6668 18.5469 12.9759C19.3999 13.2517 19.956 13.8344 20.1926 14.7068C20.3743 15.3768 20.3742 16.054 20.2368 16.7295C20.1309 17.2495 19.9179 17.7241 19.5344 18.1037C18.8464 18.7847 17.9873 18.9413 17.0654 18.8891C16.9014 18.8798 16.7379 18.8619 16.5694 18.8433C16.4905 18.8347 16.4105 18.8259 16.3288 18.8178C16.3311 18.8439 16.3324 18.8679 16.3337 18.8904C16.336 18.9347 16.3381 18.9731 16.3472 19.0098C16.3865 19.1677 16.424 19.3262 16.4614 19.4847C16.5516 19.8665 16.6418 20.2483 16.7577 20.6221C16.9855 21.3561 17.2502 22.0725 17.5504 22.7719C19.6902 22.6049 21.661 22.073 23.7528 20.8173C23.7842 20.7975 23.8128 20.7796 23.8414 20.7618C24.7399 20.2024 25.4671 19.4768 25.9686 18.5398C26.7808 17.0224 26.9391 15.3997 26.6978 13.7248C26.4488 11.9962 25.6731 10.5453 24.3377 9.40723C23.4116 8.61786 22.3406 8.10091 21.1783 7.76704Z" fill="black" />
+    </svg>
+  )
+}
+
+function ArkMark() {
+  return (
+    <svg viewBox="0 0 512 512" fill="none" aria-hidden className={libraryMark}>
+      <rect width="512" height="512" rx="254" fill="#EB5E41" />
+      <path
+        d="M231.089 204.512C213.27 256.575 195.503 308.425 177.857 360.315C176.886 363.171 175.618 364.044 172.603 364.034C139.296 363.913 105.988 363.958 72.6803 363.958C71.5973 363.958 70.5143 363.958 69 363.958C99.2736 274.397 129.405 185.258 159.555 96.0615C160.872 96.0615 161.985 96.0615 163.097 96.0615C224.395 96.0612 285.692 96.0772 346.989 96C349.43 95.9969 350.556 96.6394 351.373 98.9802C381.583 185.583 411.862 272.163 442.128 358.746C442.4 359.523 442.622 360.316 443 361.529C390.332 361.529 337.906 361.529 285.137 361.529C285.137 386.911 285.137 411.902 285.137 436.894C284.919 436.929 284.701 436.965 284.483 437C263.855 378.743 243.227 320.485 222.445 261.796C223.73 261.685 224.773 261.517 225.817 261.517C248.022 261.501 270.227 261.505 292.432 261.504C298.956 261.504 299.791 260.378 297.652 254.338C285.545 220.153 273.428 185.971 261.314 151.789C259.982 148.03 258.722 144.242 257.262 140.533C256.87 139.539 256.436 137.922 255.137 137.922C253.839 137.922 253.401 139.61 253.045 140.632C248.464 153.765 243.978 166.932 239.468 180.09C236.701 188.162 233.934 196.234 231.089 204.512Z"
+        fill="white"
+      />
+    </svg>
+  )
+}
+
+const SOCIAL_LINKS = [
+  { label: 'GitHub', href: 'https://github.com/estheragbaje', icon: FaGithub },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/folasadeagbaje/', icon: FaLinkedin },
+  { label: 'Twitter', href: 'https://x.com/_estheradebayo', icon: FaXTwitter },
+]
+
+const socialLink = css({
+  display: 'inline-grid',
+  placeItems: 'center',
+  w: '7',
+  h: '7',
+  color: 'fg.muted',
+  rounded: 'control',
+  transitionProperty: 'color',
+  transitionDuration: '[150ms]',
+  _hover: { color: 'fg.default' },
+  _focusVisible: { outlineWidth: 'focus', outlineStyle: 'solid', outlineColor: 'focusRing', outlineOffset: '0.5' },
+  '& svg': { w: '4', h: '4' },
+})
+
 function Footer() {
   return (
     <footer
       {...CHROME}
       className={css({
         hideBelow: 'md',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '6',
         px: '6',
         pt: '16',
         pb: '6',
@@ -190,19 +295,35 @@ function Footer() {
       })}
     >
       <p>
-        <span className={css({ color: 'fg.default', fontWeight: 'medium' })}>Panda Themes</span>
+        <span className={css({ color: 'fg.default', fontWeight: 'medium' })}>Theme Explorer</span>
         <span aria-hidden className={css({ mx: '2.5', color: 'fg.subtle' })}>|</span>
         Made with{' '}
         <a className={footerLink} href="https://panda-css.com" {...newTab}>
+          <PandaMark />
           Panda CSS
           <NewTabHint />
         </a>{' '}
         &amp;{' '}
         <a className={footerLink} href="https://ark-ui.com" {...newTab}>
+          <ArkMark />
           Ark UI
           <NewTabHint />
         </a>
       </p>
+      <div className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
+        <p>
+          Created by <span className={css({ color: 'fg.default', fontWeight: 'medium' })}>Esther Adebayo</span>
+        </p>
+        <ul className={css({ display: 'flex', alignItems: 'center', gap: '0.5' })}>
+          {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
+            <li key={label}>
+              <a className={socialLink} href={href} {...newTab} aria-label={`${label} (opens in a new tab)`}>
+                <Icon aria-hidden />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </footer>
   )
 }

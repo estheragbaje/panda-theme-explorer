@@ -15,6 +15,8 @@ import { themeConfig } from './theme-tokens'
 // theme in it. Panda Studio reads this file.
 const SPEC_PATH = '/design-system.json'
 const STUDIO_URL = 'https://studio.panda-css.com/'
+// The spec is thousands of lines; the tab shows this many until the user asks for all.
+const PREVIEW_LINES = 60
 
 // The dialog is part of the explorer's chrome, so it wears Everyday like the header.
 const CHROME = { 'data-panda-theme': 'everyday' } as const
@@ -113,6 +115,7 @@ function ConfigTab({ theme }: { theme: ThemeId }) {
 
 function SpecTab() {
   const [spec, setSpec] = useState<string | null>(null)
+  const [showAll, setShowAll] = useState(false)
   useEffect(() => {
     let live = true
     fetch(SPEC_PATH)
@@ -124,12 +127,38 @@ function SpecTab() {
     }
   }, [])
 
+  const lines = spec?.split('\n') ?? []
+  const truncated = !showAll && lines.length > PREVIEW_LINES
+
   return (
     // The actions sit in the code's top-right corner, outside the scrolling area.
     <div className={css({ position: 'relative', flex: '1', minH: '0', display: 'flex' })}>
       <pre className={code} tabIndex={0} aria-label="design-system.json">
-        {spec ?? 'Loading…'}
+        {spec === null ? 'Loading…' : truncated ? lines.slice(0, PREVIEW_LINES).join('\n') : spec}
       </pre>
+      {/* The preview fades out above the button that renders the rest. */}
+      {truncated && (
+        <div
+          className={css({
+            position: 'absolute',
+            insetInline: '0',
+            bottom: '0',
+            display: 'flex',
+            justifyContent: 'center',
+            pt: '16',
+            pb: '4',
+            roundedBottom: 'control',
+            bgGradient: 'to-t',
+            gradientFrom: 'bg.subtle',
+            gradientVia: 'bg.subtle',
+            gradientTo: 'transparent',
+          })}
+        >
+          <button type="button" className={cx(button({ variant: 'outline', size: 'sm' }), css({ bg: 'bg.surface' }))} onClick={() => setShowAll(true)}>
+            View all {lines.length.toLocaleString('en-US')} lines
+          </button>
+        </div>
+      )}
       <div className={css({ position: 'absolute', top: '3', insetEnd: '5', display: 'flex', gap: '2' })}>
         <button type="button" className={cx(button({ variant: 'outline', size: 'sm' }), css({ bg: 'bg.surface' }))} onClick={() => download('design-system.json', SPEC_PATH)}>
           <LuDownload /> Download

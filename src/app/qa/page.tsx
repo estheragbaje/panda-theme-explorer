@@ -3,7 +3,7 @@ import { QaMatrix } from './qa-matrix'
 
 // Hidden state matrix for visual tests. Not linked from the app.
 export const metadata: Metadata = {
-  title: 'QA · Panda Themes',
+  title: 'QA · Theme Explorer',
   robots: { index: false, follow: false },
 }
 
