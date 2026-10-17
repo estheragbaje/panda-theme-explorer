@@ -11,9 +11,11 @@ import * as Dialog from '../ui/dialog'
 import * as Tabs from '../ui/tabs'
 import { themeConfig } from './theme-tokens'
 
-// The design-system spec Panda writes at build time (panda codegen --spec), with every
-// theme in it. Panda Studio reads this file.
-const SPEC_PATH = '/design-system.json'
+// Each theme's design-system spec, written at build time (scripts/build-specs.mjs) with
+// that theme as the base. Panda Studio reads these files.
+const specPath = (theme: ThemeId) => `/specs/${theme}.json`
+// Studio picks up a dropped file whose name ends in design-system.json.
+const specFile = (theme: ThemeId) => `${theme}.design-system.json`
 const STUDIO_URL = 'https://studio.panda-css.com/'
 // The spec is thousands of lines; the tab shows this many until the user asks for all.
 const PREVIEW_LINES = 60
@@ -77,7 +79,7 @@ export function UseTheme({ theme }: { theme: ThemeId }) {
                 <ConfigTab theme={theme} />
               </Tabs.Content>
               <Tabs.Content value="spec" className={css({ flex: '1', minH: '0', display: 'flex', flexDirection: 'column', gap: '4', _hidden: { display: 'none' } })}>
-                <SpecTab />
+                <SpecTab theme={theme} />
               </Tabs.Content>
             </Tabs.Root>
           </Dialog.Content>
@@ -113,19 +115,19 @@ function ConfigTab({ theme }: { theme: ThemeId }) {
   )
 }
 
-function SpecTab() {
+function SpecTab({ theme }: { theme: ThemeId }) {
   const [spec, setSpec] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
   useEffect(() => {
     let live = true
-    fetch(SPEC_PATH)
+    fetch(specPath(theme))
       .then((r) => r.text())
       .then((text) => live && setSpec(text))
       .catch(() => {})
     return () => {
       live = false
     }
-  }, [])
+  }, [theme])
 
   const lines = spec?.split('\n') ?? []
   const truncated = !showAll && lines.length > PREVIEW_LINES
@@ -160,14 +162,14 @@ function SpecTab() {
         </div>
       )}
       <div className={css({ position: 'absolute', top: '3', insetEnd: '5', display: 'flex', gap: '2' })}>
-        <button type="button" className={cx(button({ variant: 'outline', size: 'sm' }), css({ bg: 'bg.surface' }))} onClick={() => download('design-system.json', SPEC_PATH)}>
+        <button type="button" className={cx(button({ variant: 'outline', size: 'sm' }), css({ bg: 'bg.surface' }))} onClick={() => download(specFile(theme), specPath(theme))}>
           <LuDownload /> Download
         </button>
         <button
           type="button"
           className={cx(button({ variant: 'solid', size: 'sm' }), css({ colorPalette: 'neutral', shadow: 'none' }))}
           onClick={() => {
-            download('design-system.json', SPEC_PATH)
+            download(specFile(theme), specPath(theme))
             window.open(STUDIO_URL, '_blank', 'noopener,noreferrer')
           }}
         >
