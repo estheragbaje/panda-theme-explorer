@@ -197,9 +197,9 @@ export const slider = defineSlotRecipe({
     label: fieldLabel,
     valueText: { textStyle: 'numeric', fontSize: 'sm', color: 'fg.muted' },
     control: { position: 'relative', display: 'flex', alignItems: 'center', h: '5' },
-    // A tinted track under a solid range, so the selected span reads in every theme (Panda's
-    // border.strong and accent.solid are the same black).
-    track: { flex: '1', h: '1.5', rounded: 'full', bg: 'colorPalette.subtle', overflow: 'hidden' },
+    // The same unfilled and filled colors as the progress bars (bg.subtle under a solid
+    // range), so every bar reads alike in each theme.
+    track: { flex: '1', h: '1.5', rounded: 'full', bg: 'bg.subtle', overflow: 'hidden' },
     range: { h: 'full', bg: 'colorPalette.solid' },
     thumb: {
       w: '4.5',
@@ -261,11 +261,19 @@ export const ratingGroup = defineSlotRecipe({
     // Empty stars are outlines and filled stars are solid, so the rating reads by shape
     // too: in some themes border.strong and warning.solid are close (Panda's ink is black).
     item: {
+      position: 'relative',
       color: 'border.strong',
       rounded: 'control',
       cursor: 'pointer',
       '& svg': { w: '4', h: '4', fill: 'transparent' },
       _highlighted: { color: 'colorPalette.solid', '& svg': { fill: 'currentColor' } },
+      // A half star: the empty outline in full, with the filled left half laid over it.
+      // Both attributes, so it outranks the highlighted style (a half star is highlighted).
+      '&[data-half][data-highlighted]': {
+        color: 'border.strong',
+        '& svg': { fill: 'transparent' },
+        '& svg[data-star=half]': { position: 'absolute', inset: '0', color: 'colorPalette.solid', fill: 'currentColor' },
+      },
       _focusVisible: focusRing,
       _readOnly: { cursor: 'default' },
     },

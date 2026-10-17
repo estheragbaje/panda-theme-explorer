@@ -177,7 +177,16 @@ export function StaysSection() {
                   api.items.map((index) => (
                     <RatingGroup.Item key={index} index={index}>
                       <RatingGroup.ItemContext>
-                        {(item) => (item.half ? <LuStarHalf /> : <LuStar />)}
+                        {(item) =>
+                          item.half ? (
+                            <>
+                              <LuStar />
+                              <LuStarHalf data-star="half" />
+                            </>
+                          ) : (
+                            <LuStar />
+                          )
+                        }
                       </RatingGroup.ItemContext>
                     </RatingGroup.Item>
                   ))

@@ -50,7 +50,8 @@ export const select = defineSlotRecipe({
       _open: { rotate: '[180deg]' },
     },
     clearTrigger: iconTrigger,
-    positioner: {},
+    // The list opens in a portal, outside root, so it sets the palette again.
+    positioner: { colorPalette: 'accent' },
     content: {
       ...overlayContent,
       p: '1',
@@ -89,7 +90,9 @@ export const datePicker = defineSlotRecipe({
       '& svg': { w: '4', h: '4' },
     },
     clearTrigger: iconTrigger,
-    positioner: {},
+    // The calendar opens in a portal, outside root, so it sets the palette again: without
+    // it the selected and in-range days have no color.
+    positioner: { colorPalette: 'accent' },
     content: { ...overlayContent, display: 'flex', flexDirection: 'column', gap: '3', p: '3' },
     view: { display: 'flex', flexDirection: 'column', gap: '2' },
     viewControl: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2' },
